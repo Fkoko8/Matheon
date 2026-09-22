@@ -22,7 +22,7 @@ export interface AIMessage { id: ID; conversationId: ID; role: 'user' | 'assista
 export interface DashboardData { profile: UserProfile; mastery: number; accuracy: number; tasks: number; reviewQueue: number; weakTopics: Topic[]; recentActivity: StudySession[] }
 export interface SubmitAnswerInput { questionId: ID; answer: string }
 export interface AnswerResult { isCorrect: boolean; answerId: ID; feedback?: string }
-export interface TaskEngine { submitAnswer(input: SubmitAnswerInput): Promise<AnswerResult>; requestHint(questionId: ID): Promise<Hint | null>; revealSolution(questionId: ID): Promise<Solution | null>; recordAttempt(input: SubmitAnswerInput): Promise<UserAnswer>; recordMistake(questionId: ID): Promise<Mistake>; updateProgress(topicId: ID, isCorrect: boolean): Promise<UserProgress> }
+export interface TaskEngine { submitAnswer(input: SubmitAnswerInput): Promise<AnswerResult>; requestHint(questionId: ID): Promise<Hint | null>; revealSolution(questionId: ID): Promise<Solution | null>; recordAttempt(input: SubmitAnswerInput): Promise<UserAnswer>; recordMistake(questionId: ID, userAnswer?: string): Promise<Mistake>; updateProgress(topicId: ID, isCorrect: boolean): Promise<UserProgress> }
 
 export const DEMO_USER_ID = 'demo-user'
 export const nowIso = () => new Date().toISOString()
