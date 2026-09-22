@@ -1,0 +1,51 @@
+'use client'
+
+import { useState } from 'react'
+import { Bot, Check, Filter, Lightbulb, Send, Sparkles, Target, Timer, X } from 'lucide-react'
+import { activities, topics } from '@/lib/mock-data'
+
+function Progress({ value, color = 'bg-violet-400' }: { value: number; color?: string }) {
+  return <div className="h-1.5 overflow-hidden rounded-full bg-white/[0.07]"><div className={`h-full rounded-full ${color}`} style={{ width: `${value}%` }} /></div>
+}
+
+const questions = [
+  { title: 'Równanie logarytmiczne', topic: 'Logarytmy', difficulty: 'Średnie', points: 3, prompt: 'Rozwiąż równanie log₂(x − 1) = 3.' },
+  { title: 'Ciąg arytmetyczny', topic: 'Ciągi', difficulty: 'Trudne', points: 4, prompt: 'Wyznacz wyraz a₁₀ ciągu, w którym a₃ = 7 oraz a₇ = 19.' },
+  { title: 'Pole trójkąta', topic: 'Geometria', difficulty: 'Łatwe', points: 2, prompt: 'Oblicz pole trójkąta o podstawie 8 i wysokości 5.' },
+]
+
+export function TasksPage() {
+  const [query, setQuery] = useState('')
+  const [selected, setSelected] = useState<typeof questions[number] | null>(null)
+  const visible = questions.filter((q) => `${q.title} ${q.topic}`.toLowerCase().includes(query.toLowerCase()))
+  return <main className="mx-auto max-w-7xl p-5 lg:p-10"><div className="flex flex-col justify-between gap-5 md:flex-row md:items-end"><div><p className="mb-2 text-[10px] font-semibold uppercase tracking-[0.2em] text-violet-400">Trening</p><h1 className="text-3xl font-semibold text-white">Zadania</h1><p className="mt-2 text-sm text-slate-400">Ćwicz dokładnie te umiejętności, których potrzebujesz.</p></div><button className="flex items-center gap-2 rounded-xl bg-violet-500 px-4 py-2.5 text-sm font-medium text-white hover:bg-violet-400"><Sparkles size={16} /> Generator zadań</button></div><div className="mt-8 flex flex-col gap-3 md:flex-row"><div className="flex flex-1 items-center gap-3 rounded-xl border border-white/[0.08] bg-white/[0.03] px-4 py-3"><Filter size={16} className="text-slate-500" /><input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Szukaj po temacie lub nazwie" className="w-full bg-transparent text-sm text-white outline-none placeholder:text-slate-600" /></div><div className="flex gap-2"><button className="rounded-xl border border-violet-400/30 bg-violet-500/10 px-4 py-2 text-xs text-violet-200">Polecane</button><button className="rounded-xl border border-white/[0.08] bg-white/[0.03] px-4 py-2 text-xs text-slate-400">Moje błędy</button></div></div><div className="mt-8 grid gap-4 lg:grid-cols-3">{visible.map((q) => <button key={q.title} onClick={() => setSelected(q)} className="text-left rounded-2xl border border-white/[0.07] bg-white/[0.025] p-5 transition hover:-translate-y-0.5 hover:border-violet-400/30"><div className="flex items-center justify-between"><span className="rounded-full bg-violet-500/10 px-2.5 py-1 text-[10px] text-violet-300">{q.topic}</span><span className="text-xs text-slate-500">{q.points} pkt</span></div><h2 className="mt-5 text-base font-semibold text-white">{q.title}</h2><p className="mt-2 text-sm leading-6 text-slate-500">{q.prompt}</p><div className="mt-6 flex items-center justify-between text-xs"><span className="text-amber-300">{q.difficulty}</span><span className="text-violet-300">Rozwiąż →</span></div></button>)}</div>{selected && <Solver question={selected} close={() => setSelected(null)} />}</main>
+}
+
+function Solver({ question, close }: { question: typeof questions[number]; close: () => void }) {
+  const [answer, setAnswer] = useState('')
+  const [checked, setChecked] = useState(false)
+  const [hint, setHint] = useState(false)
+  return <div className="fixed inset-0 z-50 grid place-items-center bg-black/70 p-4 backdrop-blur-sm"><section className="max-h-[90vh] w-full max-w-3xl overflow-auto rounded-3xl border border-white/[0.1] bg-[#11111a] p-6 shadow-2xl md:p-8"><div className="flex items-start justify-between"><div><span className="text-xs text-violet-300">{question.topic} · {question.difficulty}</span><h2 className="mt-2 text-2xl font-semibold text-white">{question.title}</h2></div><button onClick={close} aria-label="Zamknij" className="rounded-lg p-2 text-slate-500 hover:bg-white/[0.06] hover:text-white"><X /></button></div><div className="mt-8 rounded-2xl bg-[#090910] p-6 text-base leading-8 text-slate-200">{question.prompt}</div><textarea value={answer} onChange={(e) => setAnswer(e.target.value)} placeholder="Wpisz swoje rozwiązanie lub odpowiedź..." className="mt-5 min-h-32 w-full resize-none rounded-2xl border border-white/[0.08] bg-white/[0.03] p-4 text-sm text-white outline-none focus:border-violet-400/50" />{hint && <div className="mt-4 flex gap-3 rounded-2xl border border-amber-400/20 bg-amber-400/10 p-4 text-sm text-amber-100"><Lightbulb size={18} className="shrink-0 text-amber-300" />Zamień równanie logarytmiczne na postać potęgową i pamiętaj o dziedzinie.</div>}{checked && <div className="mt-4 flex items-center gap-3 rounded-2xl border border-emerald-400/20 bg-emerald-400/10 p-4 text-sm text-emerald-100"><Check size={18} />Odpowiedź zapisana. Dobra robota — przeanalizuj teraz swój tok rozumowania.</div>}<div className="mt-6 flex flex-wrap gap-3"><button onClick={() => setChecked(true)} disabled={!answer.trim()} className="flex items-center gap-2 rounded-xl bg-violet-500 px-4 py-2.5 text-sm font-medium text-white disabled:cursor-not-allowed disabled:opacity-40"><Target size={16} />Sprawdź</button><button onClick={() => setHint(true)} className="flex items-center gap-2 rounded-xl border border-white/[0.09] px-4 py-2.5 text-sm text-slate-300 hover:bg-white/[0.05]"><Lightbulb size={16} />Podpowiedź</button></div></section></div>
+}
+
+export function AITutorPage() {
+  const [messages, setMessages] = useState([{ role: 'ai', text: 'Cześć, FKoko. Pomogę Ci zrozumieć problem, ale nie podam rozwiązania od razu. Nad czym dziś pracujesz?' }])
+  const [text, setText] = useState('')
+  const send = () => { if (!text.trim()) return; const value = text; setText(''); setMessages((m) => [...m, { role: 'user', text: value }, { role: 'ai', text: 'Zacznijmy od pierwszego kroku. Jaką własność lub definicję możesz zastosować w tym zadaniu?' }]) }
+  return <main className="mx-auto flex min-h-[calc(100vh-76px)] max-w-5xl flex-col p-5 lg:p-10"><div><p className="mb-2 text-[10px] font-semibold uppercase tracking-[0.2em] text-violet-400">Twój osobisty nauczyciel</p><h1 className="text-3xl font-semibold text-white">AI Tutor</h1><p className="mt-2 text-sm text-slate-400">Pytaj, rozumiej i rozwiązuj — krok po kroku.</p></div><div className="mt-8 flex flex-1 flex-col rounded-3xl border border-white/[0.07] bg-white/[0.025] p-5 md:p-7"><div className="flex items-center gap-3 border-b border-white/[0.07] pb-5"><span className="grid size-10 place-items-center rounded-xl bg-violet-500/15 text-violet-300"><Bot size={20} /></span><div><p className="text-sm font-medium text-white">MATHEON Tutor</p><p className="text-xs text-emerald-300">Online · odpowiada po polsku</p></div></div><div className="flex flex-1 flex-col gap-5 py-6">{messages.map((m, i) => <div key={i} className={`flex gap-3 ${m.role === 'user' ? 'justify-end' : ''}`}><div className={`max-w-[80%] rounded-2xl px-4 py-3 text-sm leading-6 ${m.role === 'user' ? 'bg-violet-500 text-white' : 'bg-white/[0.06] text-slate-200'}`}>{m.text}</div></div>)}{messages.length === 1 && <div className="flex flex-wrap gap-2">{['Wyjaśnij mi pochodną', 'Nie rozumiem zadania', 'Daj mi podobne zadanie'].map((x) => <button key={x} onClick={() => { setText(x); }} className="rounded-xl border border-white/[0.08] px-3 py-2 text-xs text-slate-400 hover:border-violet-400/30 hover:text-white">{x}</button>)}</div>}</div><div className="flex items-end gap-3 rounded-2xl border border-white/[0.08] bg-black/20 p-2"><textarea value={text} onChange={(e) => setText(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey && !e.nativeEvent.isComposing && e.keyCode !== 229) { e.preventDefault(); send() } }} placeholder="Napisz wiadomość..." className="min-h-11 flex-1 resize-none bg-transparent px-3 py-2 text-sm text-white outline-none placeholder:text-slate-600" /><button onClick={send} aria-label="Wyślij wiadomość" className="grid size-10 place-items-center rounded-xl bg-violet-500 text-white hover:bg-violet-400"><Send size={16} /></button></div></div></main>
+}
+
+export function RichStatsPage() { return <main className="mx-auto max-w-7xl p-5 lg:p-10"><p className="mb-2 text-[10px] font-semibold uppercase tracking-[0.2em] text-violet-400">Analityka nauki</p><h1 className="text-3xl font-semibold text-white">Twoje statystyki</h1><div className="mt-8 grid gap-4 md:grid-cols-4">{[['Mastery','69%'],['Skuteczność','82%'],['Rozwiązane','248'],['Czas nauki','34h']].map(([a,b]) => <div key={a} className="rounded-2xl border border-white/[0.07] bg-white/[0.025] p-5"><p className="text-xs text-slate-500">{a}</p><p className="mt-3 text-3xl font-semibold text-white">{b}</p></div>)}</div><div className="mt-6 grid gap-6 lg:grid-cols-[1.5fr_1fr]"><div className="rounded-2xl border border-white/[0.07] bg-white/[0.025] p-6"><h2 className="mb-6 font-semibold text-white">Mastery tematów</h2>{topics.map(([name,value,,color]) => <div key={name} className="mb-5"><div className="mb-2 flex justify-between text-sm"><span className="text-slate-300">{name}</span><span className="text-slate-500">{value}</span></div><Progress value={Number.parseInt(value)} color={color} /></div>)}</div><div className="rounded-2xl border border-white/[0.07] bg-white/[0.025] p-6"><h2 className="mb-6 font-semibold text-white">Aktywność w tym tygodniu</h2><div className="flex h-48 items-end justify-between gap-2">{[38,52,45,70,56,78,64].map((v,i) => <div key={i} className="flex flex-1 flex-col items-center gap-2"><div className="w-full rounded-t-lg bg-violet-500/70" style={{height:`${v}%`}} /><span className="text-[10px] text-slate-600">{['Pn','Wt','Śr','Cz','Pt','So','Nd'][i]}</span></div>)}</div></div></div></main> }
+
+void activities
+void Target
+void Timer
+void Check
+void Lightbulb
+void Send
+void Sparkles
+void Filter
+void Bot
+void topics
+void Progress
+void useState
