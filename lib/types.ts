@@ -20,7 +20,7 @@ export interface AIConversation { id: ID; userId: ID; title: string; createdAt: 
 export interface AIMessage { id: ID; conversationId: ID; role: 'user' | 'assistant' | 'system'; content: string; createdAt: string }
 
 export interface DashboardData { profile: UserProfile; mastery: number; accuracy: number; tasks: number; reviewQueue: number; weakTopics: Topic[]; recentActivity: StudySession[] }
-export interface SubmitAnswerInput { questionId: ID; answer: string }
+export interface SubmitAnswerInput { questionId: ID; answer: string; timeSeconds?: number; hintsUsed?: number; solutionViewed?: boolean }
 export interface AnswerResult { isCorrect: boolean; answerId: ID; feedback?: string }
 export interface TaskEngine { submitAnswer(input: SubmitAnswerInput): Promise<AnswerResult>; requestHint(questionId: ID): Promise<Hint | null>; revealSolution(questionId: ID): Promise<Solution | null>; recordAttempt(input: SubmitAnswerInput): Promise<UserAnswer>; recordMistake(questionId: ID, userAnswer?: string): Promise<Mistake>; updateProgress(topicId: ID, isCorrect: boolean): Promise<UserProgress> }
 

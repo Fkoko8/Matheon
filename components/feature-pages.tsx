@@ -1,7 +1,8 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Bot, Check, Filter, Lightbulb, Send, Sparkles, Target, Timer, X } from 'lucide-react'
+import { taskEngine } from '@/lib/task-engine'
 import { activities, topics } from '@/lib/mock-data'
 
 function Progress({ value, color = 'bg-violet-400' }: { value: number; color?: string }) {
@@ -9,9 +10,9 @@ function Progress({ value, color = 'bg-violet-400' }: { value: number; color?: s
 }
 
 const questions = [
-  { title: 'Równanie logarytmiczne', topic: 'Logarytmy', difficulty: 'Średnie', points: 3, prompt: 'Rozwiąż równanie log₂(x − 1) = 3.' },
-  { title: 'Ciąg arytmetyczny', topic: 'Ciągi', difficulty: 'Trudne', points: 4, prompt: 'Wyznacz wyraz a₁₀ ciągu, w którym a₃ = 7 oraz a₇ = 19.' },
-  { title: 'Pole trójkąta', topic: 'Geometria', difficulty: 'Łatwe', points: 2, prompt: 'Oblicz pole trójkąta o podstawie 8 i wysokości 5.' },
+  { id: 'question-logarithm', title: 'Równanie logarytmiczne', topic: 'Logarytmy', difficulty: 'Średnie', points: 3, prompt: 'Rozwiąż równanie log₂(x − 1) = 3.' },
+  { id: 'question-sequence', title: 'Ciąg arytmetyczny', topic: 'Ciągi', difficulty: 'Trudne', points: 4, prompt: 'Wyznacz wyraz a₁₀ ciągu, w którym a₃ = 7 oraz a₇ = 19.' },
+  { id: 'question-triangle', title: 'Pole trójkąta', topic: 'Geometria', difficulty: 'Łatwe', points: 2, prompt: 'Oblicz pole trójkąta o podstawie 8 i wysokości 5.' },
 ]
 
 export function TasksPage() {
@@ -24,8 +25,11 @@ export function TasksPage() {
 function Solver({ question, close }: { question: typeof questions[number]; close: () => void }) {
   const [answer, setAnswer] = useState('')
   const [checked, setChecked] = useState(false)
+  const [result, setResult] = useState<boolean | null>(null)
   const [hint, setHint] = useState(false)
-  return <div className="fixed inset-0 z-50 grid place-items-center bg-black/70 p-4 backdrop-blur-sm"><section role="dialog" aria-modal="true" aria-labelledby="solver-title" className="matheon-enter max-h-[92vh] w-full max-w-3xl overflow-auto rounded-3xl border border-white/[0.1] bg-[#11111a] p-5 shadow-2xl sm:p-6 md:p-8"><div className="flex items-start justify-between"><div><span className="text-xs text-violet-300">{question.topic} · {question.difficulty}</span><h2 id="solver-title" className="mt-2 text-2xl font-semibold text-white">{question.title}</h2></div><button onClick={close} aria-label="Zamknij" className="rounded-lg p-2 text-slate-500 hover:bg-white/[0.06] hover:text-white"><X /></button></div><div className="mt-8 rounded-2xl bg-[#090910] p-6 text-base leading-8 text-slate-200">{question.prompt}</div><textarea value={answer} onChange={(e) => setAnswer(e.target.value)} aria-label="Twoje rozwiązanie" placeholder="Wpisz swoje rozwiązanie lub odpowiedź..." className="mt-5 min-h-32 w-full resize-none rounded-2xl border border-white/[0.08] bg-white/[0.03] p-4 text-sm text-white outline-none focus:border-violet-400/50" />{hint && <div className="mt-4 flex gap-3 rounded-2xl border border-amber-400/20 bg-amber-400/10 p-4 text-sm text-amber-100"><Lightbulb size={18} className="shrink-0 text-amber-300" />Zamień równanie logarytmiczne na postać potęgową i pamiętaj o dziedzinie.</div>}{checked && <div className="mt-4 flex items-center gap-3 rounded-2xl border border-emerald-400/20 bg-emerald-400/10 p-4 text-sm text-emerald-100"><Check size={18} />Odpowiedź zapisana. Dobra robota — przeanalizuj teraz swój tok rozumowania.</div>}<div className="mt-6 flex flex-wrap gap-3"><button onClick={() => setChecked(true)} disabled={!answer.trim()} className="flex items-center gap-2 rounded-xl bg-violet-500 px-4 py-2.5 text-sm font-medium text-white disabled:cursor-not-allowed disabled:opacity-40"><Target size={16} />Sprawdź</button><button onClick={() => setHint(true)} className="flex items-center gap-2 rounded-xl border border-white/[0.09] px-4 py-2.5 text-sm text-slate-300 hover:bg-white/[0.05]"><Lightbulb size={16} />Podpowiedź</button></div></section></div>
+  const [startedAt] = useState(() => Date.now())
+  const submit = async () => { if (!answer.trim()) return; const response = await taskEngine.submitAnswer({ questionId: question.id, answer, timeSeconds: Math.round((Date.now() - startedAt) / 1000) }); setResult(response.isCorrect); setChecked(true) }
+  return <div className="fixed inset-0 z-50 grid place-items-center bg-black/70 p-4 backdrop-blur-sm"><section role="dialog" aria-modal="true" aria-labelledby="solver-title" className="matheon-enter max-h-[92vh] w-full max-w-3xl overflow-auto rounded-3xl border border-white/[0.1] bg-[#11111a] p-5 shadow-2xl sm:p-6 md:p-8"><div className="flex items-start justify-between"><div><span className="text-xs text-violet-300">{question.topic} · {question.difficulty}</span><h2 id="solver-title" className="mt-2 text-2xl font-semibold text-white">{question.title}</h2></div><button onClick={close} aria-label="Zamknij" className="rounded-lg p-2 text-slate-500 hover:bg-white/[0.06] hover:text-white"><X /></button></div><div className="mt-8 rounded-2xl bg-[#090910] p-6 text-base leading-8 text-slate-200">{question.prompt}</div><textarea value={answer} onChange={(e) => setAnswer(e.target.value)} aria-label="Twoje rozwiązanie" placeholder="Wpisz swoje rozwiązanie lub odpowiedź..." className="mt-5 min-h-32 w-full resize-none rounded-2xl border border-white/[0.08] bg-white/[0.03] p-4 text-sm text-white outline-none focus:border-violet-400/50" />{hint && <div className="mt-4 flex gap-3 rounded-2xl border border-amber-400/20 bg-amber-400/10 p-4 text-sm text-amber-100"><Lightbulb size={18} className="shrink-0 text-amber-300" />Zamień równanie logarytmiczne na postać potęgową i pamiętaj o dziedzinie.</div>}{checked && <div className={`mt-4 flex items-center gap-3 rounded-2xl border p-4 text-sm ${result ? 'border-emerald-400/20 bg-emerald-400/10 text-emerald-100' : 'border-rose-400/20 bg-rose-400/10 text-rose-100'}`}><Check size={18} />{result ? 'Poprawna odpowiedź. Postęp i termin powtórki zostały zapisane.' : 'Odpowiedź zapisana jako błąd. Wróć do niej w powtórkach.'}</div>}<div className="mt-6 flex flex-wrap gap-3"><button onClick={submit} disabled={!answer.trim() || checked} className="flex items-center gap-2 rounded-xl bg-violet-500 px-4 py-2.5 text-sm font-medium text-white disabled:cursor-not-allowed disabled:opacity-40"><Target size={16} />Sprawdź</button><button onClick={() => setHint(true)} className="flex items-center gap-2 rounded-xl border border-white/[0.09] px-4 py-2.5 text-sm text-slate-300 hover:bg-white/[0.05]"><Lightbulb size={16} />Podpowiedź</button></div></section></div>
 }
 
 export function AITutorPage() {
