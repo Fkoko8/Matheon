@@ -1,0 +1,12 @@
+create index if not exists ai_conversations_user_created_idx on public.ai_conversations(user_id, created_at desc);
+create index if not exists ai_conversations_user_updated_idx on public.ai_conversations(user_id, updated_at desc);
+create index if not exists ai_messages_conversation_created_idx on public.ai_messages(conversation_id, created_at);
+alter table public.ai_messages add column if not exists mode text not null default 'explain';
+alter table public.ai_messages add column if not exists hint_level integer not null default 0;
+alter table public.ai_messages add column if not exists response_ms integer;
+alter table public.ai_messages add column if not exists helpful boolean;
+alter table public.ai_messages add column if not exists context jsonb not null default '{}'::jsonb;
+drop policy if exists ai_conversations_own on public.ai_conversations;
+create policy ai_conversations_own on public.ai_conversations for all to authenticated using ((select auth.uid()) = user_id) with check ((select auth.uid()) = user_id);
+drop policy if exists ai_messages_own on public.ai_messages;
+create policy ai_messages_own on public.ai_messages for all to authenticated using (exists(select 1 from public.ai_conversations c where c.id = conversation_id and c.user_id = (select auth.uid()))) with check (exists(select 1 from public.ai_conversations c where c.id = conversation_id and c.user_id = (select auth.uid())));
