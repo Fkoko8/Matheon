@@ -1,0 +1,107 @@
+# CodeRabbit — automatyczny recenzent PR dla MATHEON
+# Referencja: https://docs.coderabbit.ai/reference/configuration
+# Plik musi leżeć w katalogu głównym repozytorium; gałąź PR używa własnej wersji.
+
+language: "pl-PL"          # recenzje, podsumowania i rozmowy po polsku
+early_access: false
+
+reviews:
+  profile: "chill"         # zbalansowany poziom uwag (quiet = tylko krytyczne, assertive = wszystkie)
+  request_changes_workflow: false
+  high_level_summary: true
+  high_level_summary_in_walkthrough: true
+  poem: false
+  review_status: true
+  auto_review:
+    enabled: true
+    drafts: false
+    auto_incremental_review: true
+  path_filters:
+    - "!pnpm-lock.yaml"
+    - "!.next/**"
+    - "!*.tsbuildinfo"
+  path_instructions:
+    # --- Baza danych (Supabase / Postgres) ---
+    - path: "supabase/**"
+      instructions: |
+        Migracje SQL Supabase (Postgres). Zwracaj uwagę na:
+        - idempotencję (IF NOT EXISTS, CREATE OR REPLACE, bloki DO),
+        - RLS: każda nowa tabela z włączonym RLS musi mieć kompletne polityki (SELECT/INSERT/UPDATE/DELETE); polityki INSERT nie mogą pozwalać na podszywanie się pod user_id innej osoby,
+        - destrukcyjne operacje (DROP COLUMN/TABLE, zmiana typów) — ostrzegaj gdy dotykają danych produkcyjnych,
+        - nowe funkcje RPC: poprawne uprawnienia (GRANT/REVOKE), SECURITY DEFINER tylko gdy uzasadniony, i bezpieczne zachowanie przy braku dopasowania (zwracać null/puste, nie rzucać wyjątku — por. 008_finish_exam_attempt_guard.sql),
+        - spójność nazewnictwa z istniejącymi migracjami 001–010.
+
+    # --- Treść merytoryczna (lekcje, zadania, mapa CKE) ---
+    - path: "content/**"
+      instructions: |
+        Autorska treść programowa do matury z matematyki. Sprawdź:
+        - poprawność merytoryczną i matematyczną przykładów, rozwiązań krok po kroku oraz podpowiedzi (odpowiedzi muszą być zgodne z rozwiązaniami),
+        - składnię LaTeX w $...$ i $$...$$ — będzie renderowana przez KaTeX (niesparowane dolary/znaki specjalne psują render),
+        - spójność ID umiejętności z katalogiem w content/cke-requirements.ts,
+        - zgodność poziomu (podstawowy/rozszerzony) i działów z wymaganiami CKE Formuły 2023,
+        - sztywny model typów z content/types.ts (bloki lekcyjne, rodzaje zadań, enumy) — pilnuj poprawnych pól.
+
+    # --- Silnik nauki (mastery, SM-2, pętla błędów) ---
+    - path: "lib/learning/**"
+      instructions: |
+        Silnik nauki — najczulsze miejsce w kodzie. Reguły, których nie wolno złamać:
+        - błędna odpowiedź NIGDY nie podnosi mastery; podpowiedź i podgląd rozwiązania dają zmniejszony przyrost,
+        - stan umiejętności jest wyprowadzany wyłącznie z dziennika learning_events (dowody = user_answers) — nie wprowadzaj równoległych źródeł prawdy ani cache'ów,
+        - zapis samooceny zadań otwartych/dowodów musi być idempotentny (dokładnie jeden zapis wyniku),
+        - SM-2: łatwość w zakresie 1.3–2.8, interwały rosną tylko po trafnych odpowiedziach,
+        - każdy zapis ucznia przechodzi przez RLS (klient zalogowanego użytkownika), service role tylko w skryptach.
+
+    # --- API i integracje AI ---
+    - path: "app/api/**"
+      instructions: |
+        Trasy API Next.js. Wymagaj:
+        - uwierzytelnienia użytkownika przed jakimkolwiek zapisem/odczytem prywatnym (401 bez sesji),
+        - limitów i dziennika wyłącznie przez lib/ai/usage.ts (liczniki w ai_request_logs) — nie twórz liczników w pamięci procesu,
+        - obsługi braku klucza AI: kontrolowany błąd JSON zamiast udawania działania AI,
+        - braku logowania sekretów i pełnych odpowiedzi modeli.
+
+    - path: "lib/ai/**"
+      instructions: |
+        Warstwa AI (Vercel AI SDK, RAG na pgvector, tutor, generator). Sprawdź:
+        - RAG: wyszukiwanie przez RPC match_knowledge_chunks (pgvector) z zejściem na tryb słowny przy braku wektorów; wyniki mają niesione matchType,
+        - prompt tutora: w trybie hint/guided nie wolno podawać gotowego wyniku,
+        - kontekst zadania (lib/ai/task-context.ts) budowany z realnych danych (zadanie, odpowiedź ucznia, matryca punktów), nie z danych demonstracyjnych,
+        - streaming: poprawna obsługa błędów strumienia (onError → kontrolowany komunikat + wpis w dzienniku zużycia).
+
+    # --- UI ---
+    - path: "components/**"
+      instructions: |
+        Komponenty React + Tailwind + shadcn/ui. Zwracaj uwagę na:
+        - renderowanie matematyki wyłącznie przez MathText (nigdy surowy LaTeX w treści interfejsu),
+        - stany ładowania i błędów dla operacji asynchronicznych (brak martwych kliknięć),
+        - poprawne linki do istniejących tras (App Router w app/(app)/**),
+        - zasady hooków React (bez warunkowych wywołań), 'use client' tylko gdzie potrzebny,
+        - dostępne kontrasty i istniejące klasy Tailwind (bez wynajdowanych utility).
+
+    # --- Skrypty (QA, import treści) ---
+    - path: "scripts/**"
+      instructions: |
+        Skrypty QA i importu. Krytyczne:
+        - skrypty QA tworzą tymczasowych użytkowników testowych i muszą usuwać po sobie wszystkie ślady (użytkownik + dane),
+        - SERVICE_ROLE używany wyłącznie do sprzątania i sond administracyjnych — logika aplikacji idzie przez sesję zalogowanego użytkownika (realny RLS),
+        - importer treści (import-content.ts) musi być idempotentny: upsert po slug, zadania po validation_metadata.code, nigdy nie usuwa danych ucznia (user_answers, learning_events).
+
+chat:
+  auto_reply: true
+
+knowledge_base:
+  learnings:
+    scope: "local"
+  code_guidelines:
+    enabled: true
+    filePatterns:
+      - "PLAN_ROZBUDOWY.md"   # konwencje i reguły architektury projektu
+
+pre_merge_checks:
+  docstrings:
+    mode: "off"              # aplikacja TS bez konwencji JSDoc — nie blokujemy
+  title:
+    mode: "warning"
+    requirements: "Tytuł krótki i opisowy, najlepiej z obszarem: 'silnik: pełne SM-2', 'treść: dział funkcje', 'db: migracja 011'."
+  description:
+    mode: "warning"
