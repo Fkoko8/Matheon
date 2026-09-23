@@ -1,80 +1,186 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { Bot, Check, Filter, Lightbulb, Send, Sparkles, Target, Timer, X } from 'lucide-react'
-import { taskEngine } from '@/lib/task-engine'
-import { activities, topics } from '@/lib/mock-data'
+/**
+ * MATHEON — mapa wiedzy.
+ *
+ * Zamiast dekoracyjnego grafu z wymyślonymi liczbami: realny katalog umiejętności
+ * z bazy (`skills`, `question_skills`) w zestawieniu z postępem ucznia (`learning_events`).
+ * Pokazuje, które umiejętności są opanowane, które wymagają pracy i kiedy wypada powtórka.
+ */
+import { useEffect, useMemo, useState } from 'react'
+import Link from 'next/link'
+import { ChevronRight, Loader2, Target } from 'lucide-react'
+import { createClient } from '@/lib/supabase/client'
+import { getCurrentUserId, joinSkillStates, loadSkillCatalog, loadSkillStates, loadTopicSkillSlugs, type SkillWithState } from '@/lib/learning/skill-state'
+import { WEAK_MASTERY, daysUntilDue, isDue, masteryLabel } from '@/lib/learning/skill-model'
 
-function Progress({ value, color = 'bg-violet-400' }: { value: number; color?: string }) {
-  return <div className="h-1.5 overflow-hidden rounded-full bg-white/[0.07]"><div className={`h-full rounded-full ${color}`} style={{ width: `${value}%` }} /></div>
+interface TopicRow {
+  id: string
+  name: string
+  slug: string
 }
 
-const questions = [
-  { id: 'question-logarithm', title: 'Równanie logarytmiczne', topic: 'Logarytmy', difficulty: 'Średnie', points: 3, prompt: 'Rozwiąż równanie log₂(x − 1) = 3.' },
-  { id: 'question-sequence', title: 'Ciąg arytmetyczny', topic: 'Ciągi', difficulty: 'Trudne', points: 4, prompt: 'Wyznacz wyraz a₁₀ ciągu, w którym a₃ = 7 oraz a₇ = 19.' },
-  { id: 'question-triangle', title: 'Pole trójkąta', topic: 'Geometria', difficulty: 'Łatwe', points: 2, prompt: 'Oblicz pole trójkąta o podstawie 8 i wysokości 5.' },
-]
-
-export function TasksPage() {
-  const [query, setQuery] = useState('')
-  const [selected, setSelected] = useState<typeof questions[number] | null>(null)
-  const visible = questions.filter((q) => `${q.title} ${q.topic}`.toLowerCase().includes(query.toLowerCase()))
-  return <main className="matheon-enter mx-auto max-w-7xl p-5 pb-28 lg:p-10"><div className="flex flex-col justify-between gap-5 md:flex-row md:items-end"><div><p className="mb-2 text-[10px] font-semibold uppercase tracking-[0.2em] text-violet-400">Trening</p><h1 className="text-3xl font-semibold text-white">Zadania</h1><p className="mt-2 text-sm text-slate-400">Ćwicz dokładnie te umiejętności, których potrzebujesz.</p></div><button className="flex items-center gap-2 rounded-xl bg-violet-500 px-4 py-2.5 text-sm font-medium text-white hover:bg-violet-400"><Sparkles size={16} /> Generator zadań</button></div><div className="mt-8 flex flex-col gap-3 md:flex-row"><div className="flex flex-1 items-center gap-3 rounded-xl border border-white/[0.08] bg-white/[0.03] px-4 py-3"><Filter size={16} className="text-slate-500" /><input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Szukaj po temacie lub nazwie" aria-label="Szukaj zadań" className="w-full bg-transparent text-sm text-white outline-none placeholder:text-slate-600" /></div><div className="flex gap-2"><button className="rounded-xl border border-violet-400/30 bg-violet-500/10 px-4 py-2 text-xs text-violet-200">Polecane</button><button className="rounded-xl border border-white/[0.08] bg-white/[0.03] px-4 py-2 text-xs text-slate-400">Moje błędy</button></div></div><div className="mt-8 grid gap-4 lg:grid-cols-3">{visible.map((q) => <button key={q.title} onClick={() => setSelected(q)} className="text-left rounded-2xl border border-white/[0.07] bg-white/[0.025] p-5 transition hover:-translate-y-0.5 hover:border-violet-400/30"><div className="flex items-center justify-between"><span className="rounded-full bg-violet-500/10 px-2.5 py-1 text-[10px] text-violet-300">{q.topic}</span><span className="text-xs text-slate-500">{q.points} pkt</span></div><h2 className="mt-5 text-base font-semibold text-white">{q.title}</h2><p className="mt-2 text-sm leading-6 text-slate-500">{q.prompt}</p><div className="mt-6 flex items-center justify-between text-xs"><span className="text-amber-300">{q.difficulty}</span><span className="text-violet-300">Rozwiąż →</span></div></button>)}</div>{selected && <Solver question={selected} close={() => setSelected(null)} />}</main>
+function tone(mastery: number): string {
+  if (mastery === 0) return 'bg-slate-500'
+  if (mastery < WEAK_MASTERY) return 'bg-rose-400'
+  if (mastery < 85) return 'bg-amber-400'
+  return 'bg-emerald-400'
 }
-
-function Solver({ question, close }: { question: typeof questions[number]; close: () => void }) {
-  const [answer, setAnswer] = useState('')
-  const [checked, setChecked] = useState(false)
-  const [result, setResult] = useState<boolean | null>(null)
-  const [hint, setHint] = useState(false)
-  const [startedAt] = useState(() => Date.now())
-  const submit = async () => { if (!answer.trim()) return; const response = await taskEngine.submitAnswer({ questionId: question.id, answer, timeSeconds: Math.round((Date.now() - startedAt) / 1000) }); setResult(response.isCorrect); setChecked(true) }
-  return <div className="fixed inset-0 z-50 grid place-items-center bg-black/70 p-4 backdrop-blur-sm"><section role="dialog" aria-modal="true" aria-labelledby="solver-title" className="matheon-enter max-h-[92vh] w-full max-w-3xl overflow-auto rounded-3xl border border-white/[0.1] bg-[#11111a] p-5 shadow-2xl sm:p-6 md:p-8"><div className="flex items-start justify-between"><div><span className="text-xs text-violet-300">{question.topic} · {question.difficulty}</span><h2 id="solver-title" className="mt-2 text-2xl font-semibold text-white">{question.title}</h2></div><button onClick={close} aria-label="Zamknij" className="rounded-lg p-2 text-slate-500 hover:bg-white/[0.06] hover:text-white"><X /></button></div><div className="mt-8 rounded-2xl bg-[#090910] p-6 text-base leading-8 text-slate-200">{question.prompt}</div><textarea value={answer} onChange={(e) => setAnswer(e.target.value)} aria-label="Twoje rozwiązanie" placeholder="Wpisz swoje rozwiązanie lub odpowiedź..." className="mt-5 min-h-32 w-full resize-none rounded-2xl border border-white/[0.08] bg-white/[0.03] p-4 text-sm text-white outline-none focus:border-violet-400/50" />{hint && <div className="mt-4 flex gap-3 rounded-2xl border border-amber-400/20 bg-amber-400/10 p-4 text-sm text-amber-100"><Lightbulb size={18} className="shrink-0 text-amber-300" />Zamień równanie logarytmiczne na postać potęgową i pamiętaj o dziedzinie.</div>}{checked && <div className={`mt-4 flex items-center gap-3 rounded-2xl border p-4 text-sm ${result ? 'border-emerald-400/20 bg-emerald-400/10 text-emerald-100' : 'border-rose-400/20 bg-rose-400/10 text-rose-100'}`}><Check size={18} />{result ? 'Poprawna odpowiedź. Postęp i termin powtórki zostały zapisane.' : 'Odpowiedź zapisana jako błąd. Wróć do niej w powtórkach.'}</div>}<div className="mt-6 flex flex-wrap gap-3"><button onClick={submit} disabled={!answer.trim() || checked} className="flex items-center gap-2 rounded-xl bg-violet-500 px-4 py-2.5 text-sm font-medium text-white disabled:cursor-not-allowed disabled:opacity-40"><Target size={16} />Sprawdź</button><button onClick={() => setHint(true)} className="flex items-center gap-2 rounded-xl border border-white/[0.09] px-4 py-2.5 text-sm text-slate-300 hover:bg-white/[0.05]"><Lightbulb size={16} />Podpowiedź</button></div></section></div>
-}
-
-export function AITutorPage() {
-  const [messages, setMessages] = useState([{ role: 'ai', text: 'Cześć, FKoko. Pomogę Ci zrozumieć problem, ale nie podam rozwiązania od razu. Nad czym dziś pracujesz?' }])
-  const [text, setText] = useState('')
-  const send = () => { if (!text.trim()) return; const value = text; setText(''); setMessages((m) => [...m, { role: 'user', text: value }, { role: 'ai', text: 'Zacznijmy od pierwszego kroku. Jaką własność lub definicję możesz zastosować w tym zadaniu?' }]) }
-  return <main className="matheon-enter mx-auto flex min-h-[calc(100vh-76px)] max-w-5xl flex-col p-5 pb-28 lg:p-10"><div><p className="mb-2 text-[10px] font-semibold uppercase tracking-[0.2em] text-violet-400">Twój osobisty nauczyciel</p><h1 className="text-3xl font-semibold text-white">AI Tutor</h1><p className="mt-2 text-sm text-slate-400">Pytaj, rozumiej i rozwiązuj — krok po kroku.</p></div><div className="mt-8 flex flex-1 flex-col rounded-3xl border border-white/[0.07] bg-white/[0.025] p-5 md:p-7"><div className="flex items-center gap-3 border-b border-white/[0.07] pb-5"><span className="grid size-10 place-items-center rounded-xl bg-violet-500/15 text-violet-300"><Bot size={20} /></span><div><p className="text-sm font-medium text-white">MATHEON Tutor</p><p className="text-xs text-emerald-300">Online · odpowiada po polsku</p></div></div><div className="flex flex-1 flex-col gap-5 py-6">{messages.map((m, i) => <div key={i} className={`flex gap-3 ${m.role === 'user' ? 'justify-end' : ''}`}><div className={`max-w-[80%] rounded-2xl px-4 py-3 text-sm leading-6 ${m.role === 'user' ? 'bg-violet-500 text-white' : 'bg-white/[0.06] text-slate-200'}`}>{m.text}</div></div>)}{messages.length === 1 && <div className="flex flex-wrap gap-2">{['Wyjaśnij mi pochodną', 'Nie rozumiem zadania', 'Daj mi podobne zadanie'].map((x) => <button key={x} onClick={() => { setText(x); }} className="rounded-xl border border-white/[0.08] px-3 py-2 text-xs text-slate-400 hover:border-violet-400/30 hover:text-white">{x}</button>)}</div>}</div><div className="flex items-end gap-3 rounded-2xl border border-white/[0.08] bg-black/20 p-2"><textarea value={text} onChange={(e) => setText(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey && !e.nativeEvent.isComposing && e.keyCode !== 229) { e.preventDefault(); send() } }} placeholder="Napisz wiadomość..." className="min-h-11 flex-1 resize-none bg-transparent px-3 py-2 text-sm text-white outline-none placeholder:text-slate-600" /><button onClick={send} aria-label="Wyślij wiadomość" className="grid size-10 place-items-center rounded-xl bg-violet-500 text-white hover:bg-violet-400"><Send size={16} /></button></div></div></main>
-}
-
-const graphNodes = [
-  { id: 'algebra', label: 'Algebra', x: 12, y: 48, mastery: 87, status: 'mastered', tone: 'bg-emerald-400' },
-  { id: 'equations', label: 'Równania', x: 31, y: 28, mastery: 68, status: 'active', tone: 'bg-amber-400' },
-  { id: 'functions', label: 'Funkcje', x: 31, y: 68, mastery: 81, status: 'mastered', tone: 'bg-emerald-400' },
-  { id: 'logs', label: 'Logarytmy', x: 54, y: 28, mastery: 74, status: 'active', tone: 'bg-amber-400' },
-  { id: 'linear', label: 'Liniowa', x: 54, y: 60, mastery: 91, status: 'mastered', tone: 'bg-emerald-400' },
-  { id: 'quadratic', label: 'Kwadratowa', x: 54, y: 82, mastery: 52, status: 'weak', tone: 'bg-rose-400' },
-  { id: 'log-equations', label: 'Równania logarytmiczne', x: 80, y: 28, mastery: 46, status: 'weak', tone: 'bg-rose-400' },
-]
 
 export function KnowledgeMapPage() {
-  const [selected, setSelected] = useState(graphNodes[3])
-  const [zoom, setZoom] = useState(100)
-  return <main className="matheon-enter h-[calc(100vh-73px)] min-h-[680px] overflow-hidden p-4 lg:p-7"><div className="flex h-full flex-col gap-4"><header className="flex flex-wrap items-end justify-between gap-4"><div><p className="mb-2 text-[10px] font-semibold uppercase tracking-[0.2em] text-violet-400">Knowledge graph</p><h1 className="text-3xl font-semibold text-white">Mapa wiedzy</h1><p className="mt-2 text-sm text-slate-400">Zobacz, jak pojęcia łączą się w całą matematykę.</p></div><div className="flex items-center gap-2 rounded-xl border border-white/[0.08] bg-white/[0.03] p-1 text-xs"><button onClick={() => setZoom(Math.max(70, zoom - 10))} className="size-8 text-slate-400 hover:text-white">−</button><span className="w-12 text-center text-slate-300">{zoom}%</span><button onClick={() => setZoom(Math.min(130, zoom + 10))} className="size-8 text-slate-400 hover:text-white">+</button></div></header><div className="relative flex min-h-0 flex-1 overflow-hidden rounded-3xl border border-white/[0.08] bg-[#0c0c15]"><div className="absolute inset-0 opacity-30" style={{backgroundImage:'radial-gradient(circle, #64748b 1px, transparent 1px)',backgroundSize:'24px 24px'}} /><div className="relative min-w-0 flex-1 overflow-auto"><div className="relative h-full min-h-[540px] min-w-[760px]" style={{transform:`scale(${zoom / 100})`,transformOrigin:'center'}}><svg className="absolute inset-0 size-full" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><path d="M12 48 L31 28 L54 28 L80 28 M12 48 L31 68 L54 60 M31 68 L54 82" fill="none" stroke="rgb(139 92 246 / .35)" strokeWidth=".35" strokeDasharray="1 1" /></svg>{graphNodes.map((node) => <button key={node.id} onClick={() => setSelected(node)} className={`absolute -translate-x-1/2 -translate-y-1/2 rounded-2xl border px-4 py-3 text-left shadow-xl transition hover:scale-105 ${selected.id === node.id ? 'border-violet-300 bg-violet-500/20 shadow-violet-500/20' : 'border-white/[0.1] bg-[#161622]'}`} style={{left:`${node.x}%`,top:`${node.y}%`}}><span className="flex items-center gap-2 text-xs font-semibold text-white"><span className={`size-2 rounded-full ${node.tone}`} />{node.label}</span><span className="mt-1 block text-[10px] text-slate-500">{node.mastery}% mastery</span></button>)}</div></div><aside className="absolute inset-x-3 bottom-3 rounded-2xl border border-white/[0.1] bg-[#171722]/95 p-5 backdrop-blur-xl md:static md:w-80 md:rounded-none md:border-0 md:border-l md:border-white/[0.08] md:bg-[#11111a] md:p-6"><div className="flex items-center justify-between"><span className="text-xs text-slate-500">Wybrany temat</span><span className={`size-2 rounded-full ${selected.tone}`} /></div><h2 className="mt-3 text-xl font-semibold text-white">{selected.label}</h2><p className="mt-1 text-sm text-slate-500">{selected.mastery}% mastery · {selected.status === 'mastered' ? 'Opanowane' : selected.status === 'weak' ? 'Wymaga uwagi' : 'W trakcie'}</p><div className="mt-5"><div className="mb-2 flex justify-between text-xs"><span className="text-slate-400">Postęp</span><span className="text-white">{selected.mastery}%</span></div><Progress value={selected.mastery} color={selected.tone} /></div><div className="mt-6 border-t border-white/[0.08] pt-5"><p className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">Najważniejsze pojęcia</p><div className="mt-3 flex flex-wrap gap-2"><span className="rounded-lg bg-white/[0.06] px-2 py-1 text-xs text-slate-300">Dziedzina</span><span className="rounded-lg bg-white/[0.06] px-2 py-1 text-xs text-slate-300">Własności</span></div><button className="mt-5 w-full rounded-xl bg-violet-500 px-4 py-2.5 text-sm font-medium text-white hover:bg-violet-400">Przejdź do nauki</button></div></aside></div></div></main>
+  const [loading, setLoading] = useState(true)
+  const [topics, setTopics] = useState<TopicRow[]>([])
+  const [skills, setSkills] = useState<SkillWithState[]>([])
+  const [topicSkills, setTopicSkills] = useState<Map<string, string[]>>(new Map())
+  const [selected, setSelected] = useState<string | null>(null)
+
+  useEffect(() => {
+    let active = true
+    const load = async () => {
+      const supabase = createClient()
+      if (!supabase) { setLoading(false); return }
+      const userId = await getCurrentUserId(supabase)
+      const [catalog, topicRows, mapping, states] = await Promise.all([
+        loadSkillCatalog(supabase),
+        supabase.from('topics').select('id,name,slug').order('order_index'),
+        loadTopicSkillSlugs(supabase),
+        userId ? loadSkillStates(userId, supabase) : Promise.resolve(new Map()),
+      ])
+      if (!active) return
+      setSkills(joinSkillStates(catalog, states))
+      setTopics(((topicRows.data ?? []) as Array<Record<string, unknown>>).map((row) => ({ id: String(row.id), name: String(row.name), slug: String(row.slug) })))
+      setTopicSkills(mapping)
+      setSelected(catalog[0]?.id ?? null)
+      setLoading(false)
+    }
+    void load()
+    return () => { active = false }
+  }, [])
+
+  const skillBySlug = useMemo(() => new Map(skills.map((entry) => [entry.skill.slug, entry])), [skills])
+  const selectedEntry = skills.find((entry) => entry.skill.id === selected) ?? null
+
+  const groups = useMemo(() => {
+    return topics
+      .map((topic) => ({
+        topic,
+        skills: (topicSkills.get(topic.id) ?? [])
+          .map((slug) => skillBySlug.get(slug))
+          .filter((entry): entry is SkillWithState => Boolean(entry)),
+      }))
+      .filter((group) => group.skills.length > 0)
+  }, [topics, topicSkills, skillBySlug])
+
+  const practised = skills.filter((entry) => entry.state.attempts > 0)
+  const mastered = practised.filter((entry) => entry.state.mastery >= 85)
+  const due = practised.filter((entry) => isDue(entry.state))
+
+  if (loading) {
+    return <main className="mx-auto flex max-w-7xl items-center gap-3 p-10 text-sm text-slate-500"><Loader2 className="animate-spin" size={16} /> Wczytuję mapę wiedzy…</main>
+  }
+
+  return (
+    <main className="matheon-enter mx-auto max-w-7xl p-5 pb-28 lg:p-10">
+      <header className="flex flex-wrap items-end justify-between gap-4">
+        <div>
+          <p className="mb-2 text-[10px] font-semibold uppercase tracking-[0.2em] text-violet-400">Mapa umiejętności</p>
+          <h1 className="text-3xl font-semibold text-white">Mapa wiedzy</h1>
+          <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-400">
+            Każda maturalna umiejętność z osobna: {practised.length} ćwiczonych, {mastered.length} opanowanych, {due.length} do powtórki.
+          </p>
+        </div>
+        <div className="flex items-center gap-2">
+          {[['Opanowane', 'bg-emerald-400'], ['W toku', 'bg-amber-400'], ['Wymaga pracy', 'bg-rose-400'], ['Bez danych', 'bg-slate-500']].map(([label, color]) => (
+            <span key={label} className="flex items-center gap-2 rounded-full border border-white/[0.08] bg-white/[0.03] px-3 py-1.5 text-[11px] text-slate-400">
+              <span className={`size-2 rounded-full ${color}`} />{label}
+            </span>
+          ))}
+        </div>
+      </header>
+
+      <div className="mt-8 grid gap-6 lg:grid-cols-[1fr_320px]">
+        <div className="relative overflow-hidden rounded-3xl border border-white/[0.08] bg-[#0c0c15] p-5 md:p-7">
+          <div className="pointer-events-none absolute inset-0 opacity-30" style={{ backgroundImage: 'radial-gradient(circle, #64748b 1px, transparent 1px)', backgroundSize: '24px 24px' }} />
+          <div className="relative flex flex-col gap-7">
+            {groups.length === 0 && <p className="text-sm text-slate-400">Brak umiejętności z powiązanymi zadaniami. Zaimportuj treść: <code className="rounded bg-black/40 px-2 py-1 text-xs">pnpm content:import</code>.</p>}
+            {groups.map((group) => (
+              <section key={group.topic.id}>
+                <div className="mb-3 flex items-center gap-3">
+                  <h2 className="text-sm font-semibold text-white">{group.topic.name}</h2>
+                  <span className="text-[11px] text-slate-600">{group.skills.length} umiejętności</span>
+                </div>
+                <div className="grid gap-2.5 sm:grid-cols-2 xl:grid-cols-3">
+                  {group.skills.map((entry) => {
+                    const state = entry.state
+                    const canPractice = entry.skill.level === 'basic' || entry.skill.level === 'extended'
+                    return (
+                      <button
+                        key={entry.skill.id}
+                        onClick={() => setSelected(entry.skill.id)}
+                        className={`rounded-2xl border p-4 text-left transition hover:-translate-y-0.5 ${selected === entry.skill.id ? 'border-violet-300 bg-violet-500/15' : 'border-white/[0.1] bg-[#161622] hover:border-violet-400/30'}`}
+                      >
+                        <span className="flex items-center gap-2 text-xs font-semibold text-white">
+                          <span className={`size-2 rounded-full ${tone(state.mastery)}`} />
+                          {entry.skill.name}
+                        </span>
+                        <span className="mt-2 block text-[11px] text-slate-500">
+                          {state.attempts === 0 ? 'brak odpowiedzi' : `${state.mastery}% · ${state.attempts} odp. · ${masteryLabel(state.mastery)}`}
+                        </span>
+                        {state.attempts > 0 && (
+                          <span className="mt-3 block h-1 overflow-hidden rounded-full bg-white/[0.08]">
+                            <span className={`block h-full rounded-full ${tone(state.mastery)}`} style={{ width: `${state.mastery}%` }} />
+                          </span>
+                        )}
+                        {canPractice && <span className="mt-3 block text-[10px] text-slate-600">{isDue(state) ? 'powtórka zaległa' : state.attempts ? `powtórka za ${daysUntilDue(state)} dni` : 'do pierwszego treningu'}</span>}
+                      </button>
+                    )
+                  })}
+                </div>
+              </section>
+            ))}
+          </div>
+        </div>
+
+        <aside className="h-fit rounded-3xl border border-white/[0.08] bg-white/[0.025] p-6">
+          {selectedEntry ? (
+            <>
+              <p className="text-xs text-slate-500">Wybrana umiejętność</p>
+              <h2 className="mt-3 text-xl font-semibold text-white">{selectedEntry.skill.name}</h2>
+              <p className="mt-1 text-sm text-slate-500">
+                {selectedEntry.skill.level === 'basic' ? 'Matura podstawowa' : 'Matura rozszerzona'} · {selectedEntry.state.attempts === 0 ? 'brak danych' : masteryLabel(selectedEntry.state.mastery)}
+              </p>
+
+              {selectedEntry.skill.description && <p className="mt-4 text-xs leading-6 text-slate-400">{selectedEntry.skill.description}</p>}
+
+              <div className="mt-5">
+                <div className="mb-2 flex justify-between text-xs"><span className="text-slate-400">Mastery</span><span className="text-white">{selectedEntry.state.mastery}%</span></div>
+                <div className="h-1.5 overflow-hidden rounded-full bg-white/[0.07]"><div className={`h-full rounded-full ${tone(selectedEntry.state.mastery)}`} style={{ width: `${selectedEntry.state.mastery}%` }} /></div>
+              </div>
+
+              <dl className="mt-6 grid grid-cols-2 gap-4 text-xs">
+                <div><dt className="text-slate-500">Odpowiedzi</dt><dd className="mt-1 text-sm text-white">{selectedEntry.state.attempts}</dd></div>
+                <div><dt className="text-slate-500">Poprawne</dt><dd className="mt-1 text-sm text-white">{selectedEntry.state.correct}</dd></div>
+                <div><dt className="text-slate-500">Interwał SM-2</dt><dd className="mt-1 text-sm text-white">{selectedEntry.state.intervalDays} dni</dd></div>
+                <div><dt className="text-slate-500">Łatwość</dt><dd className="mt-1 text-sm text-white">{selectedEntry.state.ease.toFixed(2)}</dd></div>
+                <div><dt className="text-slate-500">Wpadki</dt><dd className="mt-1 text-sm text-white">{selectedEntry.state.lapses}</dd></div>
+                <div><dt className="text-slate-500">Powtórka</dt><dd className="mt-1 text-sm text-white">{selectedEntry.state.attempts === 0 ? '—' : isDue(selectedEntry.state) ? 'teraz' : `za ${daysUntilDue(selectedEntry.state)} dni`}</dd></div>
+              </dl>
+
+              <div className="mt-6 flex flex-col gap-2">
+                <Link href="/tasks" className="flex items-center justify-center gap-2 rounded-xl bg-violet-500 px-4 py-2.5 text-xs font-medium text-white hover:bg-violet-400">
+                  <Target size={14} /> Trenuj tę umiejętność
+                </Link>
+                <Link href="/review" className="flex items-center justify-center gap-2 rounded-xl border border-white/[0.1] px-4 py-2.5 text-xs text-slate-300 hover:bg-white/[0.05]">
+                  Powtórki <ChevronRight size={13} />
+                </Link>
+              </div>
+            </>
+          ) : (
+            <p className="text-sm text-slate-500">Wybierz umiejętność z mapy, żeby zobaczyć szczegóły.</p>
+          )}
+        </aside>
+      </div>
+
+    </main>
+  )
 }
-
-const examRows = [{year:'2026',type:'MATURA ROZSZERZONA',tasks:15,time:'180 min',points:'50 pkt',status:'Nie rozpoczęty'}, {year:'2025',type:'MATURA PODSTAWOWA',tasks:24,time:'180 min',points:'46 pkt',status:'W trakcie'}, {year:'2024',type:'MATURA ROZSZERZONA',tasks:15,time:'180 min',points:'50 pkt',status:'Ukończony'}, {year:'2023',type:'MATURA PODSTAWOWA',tasks:23,time:'180 min',points:'45 pkt',status:'Nie rozpoczęty'}]
-export function ExamsPage() { const [level,setLevel]=useState('Podstawa'); const [query,setQuery]=useState(''); const rows=examRows.filter(x=>x.type.toLowerCase().includes(level === 'Podstawa' ? 'podstawowa' : 'rozszerzona') && x.year.includes(query)); return <main className="matheon-enter mx-auto max-w-7xl p-5 pb-28 lg:p-10"><header><p className="mb-2 text-[10px] font-semibold uppercase tracking-[0.2em] text-violet-400">Biblioteka egzaminów</p><h1 className="text-3xl font-semibold text-white">Arkusze maturalne</h1><p className="mt-2 text-sm text-slate-400">Rozwiązuj oficjalne arkusze i sprawdzaj swój poziom.</p></header><section className="mt-8 rounded-3xl border border-violet-400/20 bg-gradient-to-r from-violet-500/20 to-blue-500/10 p-6 md:p-8"><div className="flex flex-col justify-between gap-6 md:flex-row md:items-center"><div><span className="text-xs font-medium text-violet-200">Najważniejszy trening</span><h2 className="mt-2 text-2xl font-semibold text-white">Matura rozszerzona 2026</h2><p className="mt-2 text-sm text-slate-400">15 zadań · 180 min · pełna symulacja egzaminu</p></div><button className="rounded-xl bg-white px-5 py-3 text-sm font-semibold text-slate-900">Rozpocznij arkusz</button></div></section><div className="mt-8 flex flex-col gap-3 border-b border-white/[0.08] pb-4 md:flex-row md:items-center"><div className="flex rounded-xl border border-white/[0.08] bg-white/[0.03] p-1">{['Podstawa','Rozszerzenie'].map(x=><button key={x} onClick={()=>setLevel(x)} className={`rounded-lg px-4 py-2 text-xs ${level===x?'bg-white/[0.1] text-white':'text-slate-500'}`}>{x}</button>)}</div><input value={query} onChange={e=>setQuery(e.target.value)} placeholder="Szukaj po roku..." className="rounded-xl border border-white/[0.08] bg-white/[0.03] px-4 py-2.5 text-sm text-white outline-none placeholder:text-slate-600 md:ml-auto" aria-label="Szukaj arkuszy" /></div><div className="mt-6 grid gap-4 md:grid-cols-2">{rows.map(x=><article key={x.year+x.type} className="rounded-2xl border border-white/[0.08] bg-white/[0.025] p-5 transition hover:border-violet-400/30"><div className="flex items-start justify-between"><div><p className="text-3xl font-semibold text-white">{x.year}</p><p className="mt-1 text-[10px] font-semibold tracking-wider text-violet-300">{x.type}</p></div><span className="rounded-full bg-white/[0.06] px-3 py-1 text-[10px] text-slate-400">{x.status}</span></div><div className="mt-6 flex gap-5 text-xs text-slate-500"><span>{x.tasks} zadań</span><span>{x.time}</span><span>{x.points}</span></div><button className="mt-6 w-full rounded-xl border border-white/[0.1] py-2.5 text-sm font-medium text-white hover:bg-white/[0.06]">{x.status==='Ukończony'?'Zobacz wynik':'Rozpocznij'}</button></article>)}</div><section className="mt-10"><h2 className="text-lg font-semibold text-white">Ostatnio rozwiązywane</h2><div className="mt-4 divide-y divide-white/[0.07] rounded-2xl border border-white/[0.08] bg-white/[0.02]">{[['2024','42 / 50 pkt','38 min','wczoraj'],['2025','31 / 46 pkt','52 min','12 wrz']].map(x=><div key={x[0]} className="flex flex-wrap items-center gap-4 px-5 py-4 text-sm"><span className="font-semibold text-white">{x[0]}</span><span className="text-emerald-300">{x[1]}</span><span className="text-slate-500">{x[2]}</span><span className="ml-auto text-xs text-slate-600">{x[3]}</span></div>)}</div></section></main> }
-
-const reviewItems = [{title:'Logarytmy',reason:'Niepoprawna odpowiedź 2 dni temu',difficulty:'Średnie',last:'2 dni temu',next:'Dzisiaj'}, {title:'Geometria analityczna',reason:'Pewność spadła poniżej 60%',difficulty:'Trudne',last:'5 dni temu',next:'Dzisiaj'}, {title:'Ciągi',reason:'Nowy materiał do utrwalenia',difficulty:'Łatwe',last:'—',next:'Jutro'}]
-export function ReviewPage() { const [done,setDone]=useState(2); return <main className="matheon-enter mx-auto max-w-5xl p-5 pb-28 lg:p-10"><header><p className="mb-2 text-[10px] font-semibold uppercase tracking-[0.2em] text-violet-400">Spaced repetition</p><h1 className="text-3xl font-semibold text-white">Powtórki na dziś</h1><p className="mt-2 text-sm text-slate-400">Krótka kolejka, która wzmacnia to, co naprawdę ważne.</p></header><section className="mt-8 flex flex-col justify-between gap-6 rounded-3xl border border-emerald-400/20 bg-emerald-400/10 p-6 md:flex-row md:items-center md:p-8"><div><p className="text-sm font-medium text-emerald-200">Dzisiejsza sesja</p><p className="mt-2 text-4xl font-semibold text-white">5 <span className="text-lg font-normal text-slate-400">zadań</span></p><p className="mt-1 text-sm text-slate-400">22 min · {done} / 5 ukończone</p></div><button onClick={()=>setDone(Math.min(5,done+1))} className="rounded-xl bg-emerald-400 px-5 py-3 text-sm font-semibold text-slate-950">Rozpocznij powtórkę</button></section><div className="mt-8 flex items-center justify-between"><h2 className="text-lg font-semibold text-white">Kolejka powtórek</h2><span className="text-xs text-slate-500">{5-done} pozostało</span></div><div className="mt-4 flex flex-col gap-3">{reviewItems.map((x,i)=><article key={x.title} className={`flex flex-col gap-4 rounded-2xl border p-5 md:flex-row md:items-center ${i<2?'border-amber-400/20 bg-amber-400/[0.04]':'border-white/[0.08] bg-white/[0.025]'}`}><div className="grid size-10 shrink-0 place-items-center rounded-xl bg-white/[0.06] text-sm font-semibold text-slate-300">{i+1}</div><div className="min-w-0 flex-1"><div className="flex flex-wrap items-center gap-3"><h3 className="font-semibold text-white">{x.title}</h3><span className="text-[10px] text-amber-300">{x.difficulty}</span></div><p className="mt-1 text-sm text-slate-500">{x.reason}</p></div><div className="grid grid-cols-2 gap-6 text-xs md:flex md:gap-8"><div><p className="text-slate-600">Ostatnia próba</p><p className="mt-1 text-slate-300">{x.last}</p></div><div><p className="text-slate-600">Następna</p><p className="mt-1 text-emerald-300">{x.next}</p></div></div><button className="rounded-xl border border-white/[0.1] px-4 py-2 text-xs font-medium text-white hover:bg-white/[0.07]">Rozwiąż</button></article>)}</div><div className="mt-8 grid gap-3 md:grid-cols-3"><div className="rounded-2xl bg-amber-400/10 p-4"><p className="text-xs text-amber-200">Due now</p><p className="mt-2 text-2xl font-semibold text-white">2</p></div><div className="rounded-2xl bg-violet-400/10 p-4"><p className="text-xs text-violet-200">Due today</p><p className="mt-2 text-2xl font-semibold text-white">3</p></div><div className="rounded-2xl bg-white/[0.04] p-4"><p className="text-xs text-slate-400">Upcoming</p><p className="mt-2 text-2xl font-semibold text-white">8</p></div></div></main> }
-
-const schedule = [{day:'MONDAY',items:[['08:00','Powtórka logarytmów','15 min','Powtórka'],['16:30','Trygonometria','25 min','Teoria'],['18:00','6 zadań maturalnych','20 min','Trening']]},{day:'TUESDAY',items:[['09:00','Funkcja kwadratowa','30 min','Teoria'],['17:00','Sesja z AI Tutor','20 min','AI Tutor']]},{day:'WEDNESDAY',items:[['16:00','Geometria analityczna','25 min','Trening'],['18:30','Arkusz 2024','45 min','Arkusz']]}]
-export function PlanPage() { const [view,setView]=useState('Tydzień'); return <main className="matheon-enter mx-auto max-w-7xl p-5 pb-28 lg:p-10"><header className="flex flex-col justify-between gap-5 md:flex-row md:items-end"><div><p className="mb-2 text-[10px] font-semibold uppercase tracking-[0.2em] text-violet-400">Twój harmonogram</p><h1 className="text-3xl font-semibold text-white">Plan nauki</h1><p className="mt-2 text-sm text-slate-400">Wiesz co robić, kiedy to robić i dlaczego.</p></div><div className="flex rounded-xl border border-white/[0.08] bg-white/[0.03] p-1">{['Dzisiaj','Tydzień','Miesiąc'].map(x=><button key={x} onClick={()=>setView(x)} className={`rounded-lg px-4 py-2 text-xs ${view===x?'bg-white/[0.1] text-white':'text-slate-500'}`}>{x}</button>)}</div></header><div className="mt-8 grid gap-6 lg:grid-cols-[1fr_290px]"><section className="rounded-3xl border border-white/[0.08] bg-white/[0.02] p-5 md:p-7"><div className="mb-6 flex items-center justify-between"><div><p className="text-xs text-violet-300">22–28 września 2026</p><h2 className="mt-1 text-lg font-semibold text-white">{view === 'Dzisiaj' ? 'Poniedziałek, 22 września' : view}</h2></div><button className="rounded-lg border border-white/[0.1] px-3 py-2 text-xs text-slate-400">Dzisiaj</button></div><div className="flex flex-col gap-7">{schedule.map((day)=><div key={day.day}><p className="mb-3 text-[10px] font-semibold tracking-[0.2em] text-slate-500">{day.day}</p><div className="relative flex flex-col gap-2 border-l border-violet-400/20 pl-5">{day.items.map((item)=><div key={item[0]+item[1]} className="relative flex flex-col gap-2 rounded-xl border border-white/[0.07] bg-white/[0.03] p-4 sm:flex-row sm:items-center"><span className="absolute -left-[25px] size-2 rounded-full bg-violet-400 ring-4 ring-[#10101a]" /><span className="w-12 text-xs font-medium text-slate-500">{item[0]}</span><div className="flex-1"><p className="text-sm font-medium text-white">{item[1]}</p><p className="mt-1 text-xs text-slate-500">{item[2]}</p></div><span className="w-fit rounded-full bg-white/[0.06] px-2 py-1 text-[10px] text-slate-400">{item[3]}</span></div>)}</div></div>)}</div></section><aside className="flex flex-col gap-4"><div className="rounded-3xl border border-violet-400/20 bg-violet-500/10 p-6"><p className="text-xs text-violet-200">Plan na dziś</p><p className="mt-3 text-4xl font-semibold text-white">45<span className="text-lg text-slate-400"> min</span></p><p className="mt-1 text-sm text-slate-400">3 aktywności · 78% wykonania</p><button className="mt-5 w-full rounded-xl bg-violet-500 py-2.5 text-sm font-medium text-white">Edytuj plan</button></div><div className="rounded-3xl border border-amber-400/20 bg-amber-400/[0.06] p-6"><p className="text-xs font-medium text-amber-200">MATHEON proponuje zmianę</p><p className="mt-3 text-sm leading-6 text-slate-300">Przesuń geometrię analityczną na środę — obecnie masz niski poziom mastery.</p><button className="mt-4 text-xs font-medium text-amber-200">Zastosuj sugestię →</button></div><div className="flex flex-col gap-2"><button className="rounded-xl border border-white/[0.1] py-2.5 text-xs text-slate-300">Dodaj aktywność</button><button className="rounded-xl border border-white/[0.1] py-2.5 text-xs text-slate-300">Regeneruj plan</button></div></aside></div></main> }
-
-export function RichStatsPage() { return <main className="mx-auto max-w-7xl p-5 lg:p-10"><p className="mb-2 text-[10px] font-semibold uppercase tracking-[0.2em] text-violet-400">Analityka nauki</p><h1 className="text-3xl font-semibold text-white">Twoje statystyki</h1><div className="mt-8 grid gap-4 md:grid-cols-4">{[['Mastery','69%'],['Skuteczność','82%'],['Rozwiązane','248'],['Czas nauki','34h']].map(([a,b]) => <div key={a} className="rounded-2xl border border-white/[0.07] bg-white/[0.025] p-5"><p className="text-xs text-slate-500">{a}</p><p className="mt-3 text-3xl font-semibold text-white">{b}</p></div>)}</div><div className="mt-6 grid gap-6 lg:grid-cols-[1.5fr_1fr]"><div className="rounded-2xl border border-white/[0.07] bg-white/[0.025] p-6"><h2 className="mb-6 font-semibold text-white">Mastery tematów</h2>{topics.map(([name,value,,color]) => <div key={name} className="mb-5"><div className="mb-2 flex justify-between text-sm"><span className="text-slate-300">{name}</span><span className="text-slate-500">{value}</span></div><Progress value={Number.parseInt(value)} color={color} /></div>)}</div><div className="rounded-2xl border border-white/[0.07] bg-white/[0.025] p-6"><h2 className="mb-6 font-semibold text-white">Aktywność w tym tygodniu</h2><div className="flex h-48 items-end justify-between gap-2">{[38,52,45,70,56,78,64].map((v,i) => <div key={i} className="flex flex-1 flex-col items-center gap-2"><div className="w-full rounded-t-lg bg-violet-500/70" style={{height:`${v}%`}} /><span className="text-[10px] text-slate-600">{['Pn','Wt','Śr','Cz','Pt','So','Nd'][i]}</span></div>)}</div></div></div></main> }
-
-void activities
-void Target
-void Timer
-void Check
-void Lightbulb
-void Send
-void Sparkles
-void Filter
-void Bot
-void topics
-void Progress
-void useState

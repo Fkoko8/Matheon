@@ -110,11 +110,11 @@ async function updateUserXpAndStreak(userId: string, xpEarned: number, supabase:
   const daysSinceUpdate = Math.floor((now.getTime() - lastUpdate.getTime()) / (1000 * 60 * 60 * 24))
 
   let newStreak = profile.streak ?? 0
-  if (daysSinceUpdate === 0) {
-    // Same day - streak continues
-    newStreak = (profile.streak ?? 0) + 1
+  if (daysSinceUpdate <= 0) {
+    // Same day - streak already counted, do not increment again
+    newStreak = Math.max(1, profile.streak ?? 0)
   } else if (daysSinceUpdate === 1) {
-    // Next day - streak continues
+    // Consecutive day - extend streak
     newStreak = (profile.streak ?? 0) + 1
   } else {
     // Gap in days - streak resets

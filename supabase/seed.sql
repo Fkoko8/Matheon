@@ -1,5 +1,5 @@
 -- Original MATHEON seed data for local and preview environments
-insert into public.subjects (id,name,slug,description,level,order_index,published) values
+insert into public.subjects (id,name,slug,description,level,order_index) values
   (gen_random_uuid(),'Matematyka podstawowa','matematyka-podstawowa','Zakres podstawowy matury z matematyki.','basic',1),
   (gen_random_uuid(),'Matematyka rozszerzona','matematyka-rozszerzona','Zakres rozszerzony z zadaniami problemowymi.','extended',2)
 on conflict (slug) do nothing;
@@ -22,9 +22,12 @@ select t.id, v.name, v.slug, v.description, 1 from public.topics t cross join (v
  ('Zadania maturalne','zadania-maturalne','Ćwiczenia w formacie egzaminacyjnym.')
 ) v(name,slug,description) on conflict (topic_id,slug) do nothing;
 
+-- Slug includes the subject because topic slugs repeat across levels (e.g. 'algebra' in both).
 insert into public.lessons (topic_id,subtopic_id,title,slug,content,difficulty,estimated_minutes,order_index,published)
-select t.id, st.id, 'Wprowadzenie: '||t.name, t.slug||'-wprowadzenie', 'Autorska lekcja MATHEON z definicjami, przykładami i ćwiczeniami.', 2, 15, 1, true
-from public.topics t join public.subtopics st on st.topic_id=t.id and st.slug='podstawy'
+select t.id, st.id, 'Wprowadzenie: '||t.name, s.slug||'-'||t.slug||'-wprowadzenie', 'Autorska lekcja MATHEON z definicjami, przykładami i ćwiczeniami.', 2, 15, 1, true
+from public.topics t
+join public.subjects s on s.id = t.subject_id
+join public.subtopics st on st.topic_id=t.id and st.slug='podstawy'
 on conflict (slug) do nothing;
 
 insert into public.questions (topic_id,subtopic_id,lesson_id,question_text,question_type,level,difficulty,points,estimated_minutes,correct_answer,solution_text,source_type,published)
@@ -37,7 +40,7 @@ select t.id, st.id, l.id,
   'Przekształć wyrażenie krok po kroku, sprawdź dziedzinę i podstaw otrzymany wynik.',
   'original', true
 from public.topics t join public.subtopics st on st.topic_id=t.id and st.slug='zadania-maturalne'
-join public.lessons l on l.topic_id=t.id and l.subtopic_id=st.id
+join public.lessons l on l.topic_id=t.id
 cross join generate_series(1,9) n
 where not exists (select 1 from public.questions q where q.question_text='Zadanie treningowe '||n||': oblicz wartość wyrażenia z działu '||t.name||'.');
 

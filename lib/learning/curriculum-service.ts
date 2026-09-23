@@ -1,6 +1,0 @@
-import { createClient } from '@/lib/supabase/client'
-import { curriculum, getTopic, type LearningLevel } from '@/lib/learning/curriculum'
-export async function recordLearningEvent(input: { userId: string; eventType: string; lessonId?: string; skillId?: string; questionId?: string; metadata?: Record<string, unknown> }) { const supabase = createClient(); if (!supabase) return { ok: false }; const { error } = await supabase.from('learning_events').insert({ user_id: input.userId, event_type: input.eventType, lesson_id: input.lessonId, skill_id: input.skillId, question_id: input.questionId, metadata: input.metadata ?? {} }); return { ok: !error, error: error?.message }
-}
-export function getLearningCatalog(level?: LearningLevel) { return level ? curriculum.filter((topic) => topic.level === level) : curriculum }
-export function getLessonContext(topicSlug: string, lessonSlug: string) { const topic = getTopic(topicSlug); if (!topic) return null; const lesson = topic.lessons.find((item) => item.slug === lessonSlug); return lesson ? { topic: topic.title, level: topic.level, lesson: lesson.title, objectives: lesson.objectives, skills: lesson.skills.map((skill) => skill.name), blocks: lesson.blocks } : null }
