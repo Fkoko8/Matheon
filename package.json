@@ -6,7 +6,19 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start"
+    "start": "next start",
+    "typecheck": "tsc --noEmit",
+    "content:import": "tsx scripts/import-content.ts",
+    "content:embed": "tsx scripts/embed-knowledge.ts",
+    "qa:auth": "node scripts/qa-auth-check.mjs",
+    "qa:exam": "node scripts/qa-exam-check.mjs",
+    "qa:content": "node scripts/qa-content-check.mjs",
+    "qa:examreport": "tsx scripts/qa-exam-report-check.ts",
+    "qa:practice": "tsx scripts/qa-practice-check.ts",
+    "qa:calc": "tsx scripts/qa-calculator-check.ts",
+    "qa:ai": "tsx scripts/qa-ai-check.ts",
+    "qa": "pnpm qa:auth && pnpm qa:content && pnpm qa:calc && pnpm qa:exam && pnpm qa:practice",
+    "qa:full": "pnpm qa && pnpm qa:examreport && pnpm qa:ai"
   },
   "dependencies": {
     "@base-ui/react": "^1.5.0",
@@ -16,6 +28,7 @@
     "ai": "^7.0.107",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "katex": "^0.18.7",
     "lucide-react": "^1.16.0",
     "next": "16.3.3",
     "react": "^19",
@@ -32,6 +45,7 @@
     "@types/react-dom": "^19",
     "postcss": "^8.5",
     "tailwindcss": "^4.3.3",
+    "tsx": "^4.23.15",
     "typescript": "5.7.3"
   }
 }
