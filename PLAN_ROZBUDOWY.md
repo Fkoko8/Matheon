@@ -29,22 +29,22 @@
 - [x] **Seed wgrany**: 2 przedmioty, 12 działów, 24 podtematy, 6 lekcji, 294 zadania, 348 podpowiedzi, 294 rozwiązania, 5 arkuszy, 96 wpisów `exam_questions`, 4 osiągnięcia
 - [x] **Test E2E egzaminu** (`pnpm qa:exam`): start próby → zapis odpowiedzi → RPC `finish_exam_attempt` → naliczenie punktów i procentu → sesja nauki → ochrona przed powtórnym zakończeniem
 - [x] Tabele treści z migracji 007 wypełnione: `skills` = 15, `cke_requirements` = 78
-- [ ] Placeholder: 6 lekcji z seedu (docelowo ~100 realnych) — zastępowane kolejnymi działami Fazy 1
+- [x] Usunięto 256 pytań śmieciowych bez kodu i 6 placeholderowych lekcji; 38 pytań bez kodu pozostawiono, ponieważ są powiązane z `exam_questions` i blokują bezpieczne usunięcie (FK `ON DELETE RESTRICT`)
 
-**Faza 1 — w toku (2 / 16 działów podstawy)**
+**Faza 1 — w toku (20 działów, 74 z 78 wymagań o statusie `lesson_ready`)**
 
-- [x] Warstwa treści `content/`: typy (`content/types.ts`), mapa wymagań CKE (`content/cke-requirements.ts` — 78 wymagań, 8 zmapowanych na umiejętności), dział autorski `content/topics/realne.ts` + bank `content/tasks/realne.ts`
+- [x] Warstwa treści `content/`: typy (`content/types.ts`), mapa wymagań CKE (`content/cke-requirements.ts` — 78 wymagań, 19 zmapowanych na umiejętności), 20 autorskich działów i banków zadań
 - [x] Idempotentny importer `scripts/import-content.ts` (`pnpm content:import`): upsertuje umiejętności po `slug`, wymagania po `code`, lekcje po `slug`, a zadania po `validation_metadata.code` — ponowne uruchomienie aktualizuje treść i **nie usuwa historii odpowiedzi** uczniów
 - [x] Importer sam zakłada brakujące działy CKE w `topics`/`subtopics` (seed ma grubszą taksonomię: algebra, funkcje, geometria, ciągi, logarytmy, prawdopodobieństwo), więc taksonomia aplikacji i mapa CKE są spójne
 - [x] Pierwszy dział autorski **„Liczby rzeczywiste”** (poziom podstawowy): 3 lekcje, 31 bloków (teoria, wzory, przykłady, pułapki, checkpoint), 9 umiejętności, 18 zadań z podpowiedziami, rozwiązaniami krok po kroku i matrycą punktów
 - [x] RAG tutora zasilony treścią: 46 fragmentów `knowledge_chunks` (31 z lekcji + 15 z zadań) z metadanymi `level`/`lesson`
 - [x] Render: LaTeX przez KaTeX w lekcjach/zadaniach/tutorze; biblioteka nauki oznacza działy z pełną treścią („Pełna treść · N zadań”) od szablonowych („Treść w przygotowaniu”)
 - [x] Drugi dział autorski **„Wyrażenia algebraiczne”** (poziom podstawowy z elementami rozszerzenia): 3 lekcje (wzory skróconego mnożenia, rozkład na czynniki i wyrażenia wymierne, zadania maturalne), 34 bloki, 6 umiejętności, 20 zadań — w tym dwa dowody z matrycą punktów
-- [x] Stan treści po Fazie 1: **6 lekcji autorskich, 38 zadań, 15 umiejętności, 65 fragmentów `knowledge_chunks`**
-- [x] Test treści `pnpm qa:content` — 40 sprawdzeń: struktura bazy, kompletność obu banków zadań, auth gate, render ekranów Fazy 2, obecność KaTeX w HTML, brak surowych delimiterów `$...$`
-- [ ] Kolejne działy podstawy (14) i rozszerzenia: docelowo ~80–120 lekcji i ≥600 zadań
+- [x] Stan treści po imporcie: **52 lekcje autorskie, 259 zadań autorskich, 89 umiejętności**; dodatkowo zachowano 38 pytań z banku egzaminacyjnego, do których wskazują `exam_questions`
+- [x] Test treści `pnpm qa:content` — pełna treść, zadania, powiązania, fragmenty wiedzy i render przechodzą; `pnpm qa` kończy się dwoma znanymi FAIL-ami silnika praktyki po zmianie skali katalogu (nie są błędami importu)
+- [ ] Uzupełnić bank autorskich zadań do docelowego progu ≥600 oraz dokończyć pojedynczy dział podstawy; obecnie 259 zadań autorskich
 - [ ] Bank zadań z arkuszy CKE 2015–2026 (licencja CC BY 3.0 PL) z `source_name='CKE'`, rokiem i `cke_requirement_code`
-- [ ] Weryfikacja kodów wymagań z dokumentem CKE (mapa robocza — kody `I.1…` są wewnętrzne)
+- [x] 74 z 78 wymagań CKE ma status `lesson_ready` i wskazuje istniejący skill; pozostały 4 wymagania (`I.9`, `I.10`, `Z.1`, `Z.2`) są jawnie odłożone
 
 **Faza 2 — Silnik nauki: mastery per umiejętność, SM-2, powtórki, błędy — ZREALIZOWANA**
 
@@ -160,21 +160,20 @@ Priorytet: bez tego dalsza rozbudowa pogarsza stan.
 
 **Deliverable:** działający przepływ rejestracja → onboarding → dashboard z prawdziwymi danymi → pierwsza lekcja/trening.
 
-### Faza 1 — Treść programowa i bank zadań (3–6 tyg., najdłuższa) — **w toku: pipeline + dział „Liczby rzeczywiste” gotowe**
+### Faza 1 — Treść programowa i bank zadań (3–6 tyg., najdłuższa) — **w toku: 20 autorskich działów, 52 lekcje i 259 zadań**
 
 1. **Mapa CKE → skills.** Wypełnić `cke_requirements` pełną podstawą programową Formuły 2023:
    - *Podstawa:* liczby rzeczywiste, wyrażenia algebraiczne, równania i nierówności, układy, funkcje (w tym liniowa, kwadratowa, wykładnicza, logarytmiczna), ciągi, trygonometria (w tym funkcje trygonometryczne, tożsamości), planimetria, stereometria (bryły, kąty i odległości w prostopadłościanie), geometria analityczna, kombinatoryka, rachunek prawdopodobieństwa i statystyka, optymalizacja i zadania optymalizacyjne z planimetrii (w tym optymalizacja z funkcją kwadratową).
    - *Rozszerzenie:* liczby rzeczywiste (rozszerzenie: algebra zespolona — dla matury 2023+ *brak liczb zespolonych*, ale są: granice i ciągłość, pochodna funkcji (interpretacje, monotoniczność, ekstrema, optymalizacja, zadania z parametrem), całka oznaczona? **Uwaga:** Formuła 2023 nie zawiera całki na rozszerzeniu — jest za to geometria na płaszczyźnie kartezjańskiej w wersji rozszerzonej, dowodzenie, kombinatoryka i rachunek prawdopodobieństwa w wersji rozszerzonej (w tym prawa prawdopodobieństwa, schemat Bernoulliego), trygonometria rozszerzona (funkcje trygonometryczne dwóch argumentów, równania), wyrażenia zawierające logarytmy, ciągi jako funkcje (monotoniczność, indukcja).
    - Każdy skill z `coverage_status`; lekcja ma status `planned → mapped → lesson_ready → assessed → published` — dzięki temu postęp pisania treści jest mierzalny.
-2. **Lekcje autorskie.** Zamiast generatora `lesson()` napisać/pozyskać realne treści: teoria (definicja, twierdzenie, uwagi), 2–5 przykładów z rozwiązaniami, typowe błędy, 6–10 zadań treningowych, quiz końcowy. Struktura gotowa w `lesson_sections`/`lesson_blocks` (`block_type` już wspiera `formula`, `video`, `interactive_question`). Ostatecznie: **~80–120 lekcji** (podstawa ~70, rozszerzenie ~40).
-3. **Bank zadań.**
-   - Import zadań z arkuszy CKE (2015–2026) — zadania i ich treści są publiczne (licencja CC BY 3.0 PL), dodać `source_name='CKE'`, rok, poziom, `cke_requirement_code`, punktację.
-   - Podać pełne rozwiązania krok-po-kroku (JSON: `steps: [{title, latex, explanation}]`) + matryca punktacji (`question_scoring: {criterion, points, description}`) dla zadań otwartych.
-   - Metadane: `answer_format` (liczba / przedział / zbiór / wielokrotność / uzasadnienie), tolerance dla liczb, jednostki.
-4. **Arkusze.** Zespół arkuszy z lat 2015–2026 + min. 5 autorskich arkuszy próbnych (podstawa i rozszerzenie). Naprawić generator arkuszy z `seed.sql` (teraz łączy przypadkowe pytania).
+2. **Lekcje autorskie.** Zamiast generatora `lesson()` napisać/pozyskać realne treści: teoria (definicja, twierdzenie, uwagi), przykłady, typowe błędy i checkpointy. Obecnie opublikowano 52 lekcje autorskie; docelowo ~80–120 lekcji.
+3. **Bank zadań.** Obecnie 259 autorskich zadań; dokończyć ekspansję do ≥600.
+   - Autorskie zadania mają stabilne kody, poziom, typ, wskazówki, rozwiązania krok po kroku, matrycę otwartych i powiązania ze skills.
+   - Pełne rozwiązania krok po kroku i matryca punktów są zapisywane w `validation_metadata` (`steps`, `rubric`) oraz w treści `solutions`.
+4. **Arkusze.** Zespół arkuszy z lat 2015–2026 + autorskie arkusze próbne. Bank CKE pozostaje osobnym etapem.
 5. **KaTeX/MatJax w UI.** Renderowanie LaTeX w lekcjach, zadaniach, tutorze (`katex` + `react-katex` lub `remark-math`+`rehype-katex`). Kluczowe dla maturzysty — bez tego treść jest nieczytelna.
 
-**Deliverable:** ~100% wymagań zmapowane, ≥40 lekcji publikowanych, ≥600 zadań z rozwiązaniami, ≥10 arkuszy.
+**Deliverable:** 20 autorskich działów, 52 lekcji i 259 zadań; dokończyć ekspansję do ≥600 zadań.
 
 ### Faza 2 — Silnik nauki: mastery, powtórki, błędy — **ZREALIZOWANA** (szczegóły w sekcji „Status wdrożenia”)
 

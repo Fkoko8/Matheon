@@ -78,7 +78,7 @@ export const algebraTasks: ContentTask[] = [
     points: 1,
     prompt: 'Które wyrażenie jest równe $9x^{2}-16$?',
     options: ['$(3x-4)(3x+4)$', '$(3x-4)^{2}$', '$(9x-16)(x+1)$', '$(3x+4)^{2}$'],
-    answer: '(3x-4)(3x+4)',
+    answer: '$(3x-4)(3x+4)$',
     tags: ['wzory', 'roznica-kwadratow', 'zamkniete'],
     skills: ['algebra-wzory-skroconego-mnozenia'],
     hints: ['Zauważ różnicę dwóch kwadratów.', '$9x^{2} = (3x)^{2}$ oraz $16 = 4^{2}$'],

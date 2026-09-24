@@ -235,9 +235,7 @@ export const rownaniaTasks: ContentTask[] = [
     acceptedAnswers: ['8', '8,0'],
     tags: ['uklady', 'podstawianie', 'ulamki'],
     skills: ['rownania-uklady'],
-    hints: ['Z drugiego równania $x = y + 2$.', 'Podstaw do pierwszego i pomnóż obie strony przez $2$.'],
-    solution: 'Z drugiego równania $x = y + 2$. Podstawiamy: $\\frac{1}{2}(y+2) + y = 4$. Mnożymy przez $2$: $(y+2) + 2y = 8$, czyli $3y = 6$ i $y = 2$. Wtedy $x = 4$. Iloczyn $x \\cdot y = 8$.',
-    steps: ['Wyznacz $x = y + 2$.', 'Rozwiąż $3y = 6$, więc $y = 2$ i $x = 4$.', 'Oblicz iloczyn: $8$.'],
+    hints: ['Z drugiego równania $x = y + 2$.', 'Podstaw do pierwszego i pomnóż obie strony przez $2$.'],solution: 'Z drugiego równania $x = y + 2$. Podstawiamy: $\\frac{1}{2}(y+2) + y = 4$. Mnożymy przez $2$: $(y+2) + 2y = 8$, czyli $3y = 6$ i $y = 2$. Wtedy $x = 4$. Iloczyn $x \\cdot y = 8$.', steps: ['Wyznacz $x = y + 2$.', 'Rozwiąż $3y = 6$, więc $y = 2$ i $x = 4$.', 'Oblicz iloczyn: $8$.'], rubric: [{ criterion: 'Wyznaczenie zależności $x=y+2$', points: 1 }, { criterion: 'Rozwiązanie układu', points: 1 }],
   },
   {
     id: 'ro-15',
@@ -267,9 +265,7 @@ export const rownaniaTasks: ContentTask[] = [
     answer: 'ma dokładnie jedno rozwiązanie: $x = -2$',
     tags: ['wymierne', 'zalozenia'],
     skills: ['rownania-wymierne'],
-    hints: ['Zapisz założenie $x \\neq 2$.', 'Rozłóż licznik: $x^{2} - 4 = (x-2)(x+2)$.'],
-    solution: 'Założenie: $x \\neq 2$. Licznik zeruje się dla $x = 2$ oraz $x = -2$, ale $x = 2$ odrzucamy przez założenie. Zostaje jedno rozwiązanie: $x = -2$.',
-    steps: ['Założenie $x \\neq 2$.', '$x^{2} - 4 = 0$ daje $x = 2$ lub $x = -2$.', 'Odrzucamy $x = 2$ — zostaje $x = -2$.'],
+    hints: ['Zapisz założenie $x \\neq 2$.', 'Rozłóż licznik: $x^{2} - 4 = (x-2)(x+2)$.'],solution: 'Założenie: $x \\neq 2$. Licznik zeruje się dla $x = 2$ oraz $x = -2$, ale $x = 2$ odrzucamy przez założenie. Zostaje jedno rozwiązanie: $x = -2$.', steps: ['Założenie $x \\neq 2$.', '$x^{2} - 4 = 0$ daje $x = 2$ lub $x = -2$.', 'Odrzucamy $x = 2$ — zostaje $x = -2$.'], rubric: [{ criterion: 'Poprawne założenie', points: 0.5 }, { criterion: 'Rozwiązanie i odrzucenie', points: 0.5 }],
   },
   {
     id: 'ro-17',
@@ -283,9 +279,7 @@ export const rownaniaTasks: ContentTask[] = [
     acceptedAnswers: ['6', '6,0'],
     tags: ['modul', 'rownania'],
     skills: ['rownania-z-modulem'],
-    hints: ['Rozważ dwa przypadki: $x - 3 = 7$ oraz $x - 3 = -7$.', 'Rozwiązaniami są $x = 10$ i $x = -4$.'],
-    solution: 'Z $x - 3 = 7$ mamy $x = 10$; z $x - 3 = -7$ mamy $x = -4$. Suma rozwiązań: $10 + (-4) = 6$.',
-    steps: ['Rozbij moduł na dwa przypadki.', 'Otrzymaj $x = 10$ i $x = -4$.', 'Suma: $6$.'],
+    hints: ['Rozważ dwa przypadki: $x - 3 = 7$ oraz $x - 3 = -7$.', 'Rozwiązaniami są $x = 10$ i $x = -4$.'],solution: 'Z $x - 3 = 7$ mamy $x = 10$; z $x - 3 = -7$ mamy $x = -4$. Suma rozwiązań: $10 + (-4) = 6$.', steps: ['Rozbij moduł na dwa przypadki.', 'Otrzymaj $x = 10$ i $x = -4$.', 'Suma: $6$.'], rubric: [{ criterion: 'Rozbijcie modułu', points: 1 }, { criterion: 'Obliczenie rozwiązań i sumy', points: 1 }],
   },
   {
     id: 'ro-18',

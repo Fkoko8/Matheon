@@ -228,7 +228,7 @@ export const realneTasks: ContentTask[] = [
     skills: ['realne-dowodzenie-nierownosci'],
     hints: ['Uzupełnij wyrażenie do pełnego kwadratu.', 'Zauważ, że $x^{2}+4x = (x+2)^{2}-4$.'],
     solution: 'Przekształcamy lewą stronę: $x^{2}+4x+5 = (x^{2}+4x+4)+1 = (x+2)^{2}+1$. Ponieważ $(x+2)^{2} \\geq 0$ dla każdego $x$, mamy $(x+2)^{2}+1 \\geq 1 > 0$, co kończy dowód.',
-    steps: ['Dodaj i odejmij $4$, aby uzyskać pełny kwadrat.', 'Zapisz wyrażenie jako $(x+2)^{2}+1$.', 'Uzasadnij znak: kwadrat nieujemny plus 1.'],
+    steps: ['Dodaj i odejmij $4$, aby uzyskać pełny kwadrat.', 'Zapisz wyrażenie jako $(x+2)^{2}+1$.', 'Uzasadnij znak: kwadrat nieujemny plus 1.'], rubric: [{ criterion: 'Dokończenie do kwadratu', points: 1 }, { criterion: 'Uzasadnienie nieujemności kwadratu', points: 1 }, { criterion: 'Wniosek $x^2+4x+5>0$', points: 1 }],
   },
   {
     id: 'rr-15',
@@ -260,7 +260,7 @@ export const realneTasks: ContentTask[] = [
     skills: ['realne-dowodzenie-nierownosci', 'realne-pierwiastki'],
     hints: ['Podnieś prawą stronę do kwadratu.', 'Użyj wzoru $(a+b)^{2} = a^{2}+2ab+b^{2}$.'],
     solution: 'Podnosimy prawą stronę do kwadratu: $(2+\\sqrt{3})^{2} = 4 + 4\\sqrt{3} + 3 = 7 + 4\\sqrt{3}$. Liczba $2+\\sqrt{3}$ jest dodatnia, więc z równości kwadratów wynika $\\sqrt{7+4\\sqrt{3}} = 2+\\sqrt{3}$, co kończy dowód.',
-    steps: ['Oblicz $(2+\\sqrt{3})^{2}$.', 'Uzasadnij, że prawa strona jest dodatnia.', 'Wyciągnij pierwiastek z obu stron.'],
+    steps: ['Oblicz $(2+\\sqrt{3})^{2}$.', 'Uzasadnij, że prawa strona jest dodatnia.', 'Wyciągnij pierwiastek z obu stron.'], rubric: [{ criterion: 'Obliczenie kwadratu', points: 1 }, { criterion: 'Dodatniość prawej strony', points: 1 }, { criterion: 'Wniosek z równości', points: 1 }],
   },
   {
     id: 'rr-17',
@@ -276,7 +276,7 @@ export const realneTasks: ContentTask[] = [
     skills: ['realne-dowodzenie-nierownosci'],
     hints: ['Zapisz kolejne liczby nieparzyste jako $2n+1$ i $2n-1$.', 'Skorzystaj ze wzoru na różnicę kwadratów.'],
     solution: 'Niech kolejne liczby nieparzyste to $2n+1$ oraz $2n-1$ dla $n$ całkowitego. Wtedy $(2n+1)^{2}-(2n-1)^{2} = \\big((2n+1)-(2n-1)\\big)\\big((2n+1)+(2n-1)\\big) = 2\\cdot 4n = 8n$, a liczba $8n$ jest podzielna przez $8$.',
-    steps: ['Oznacz liczby jako $2n+1$ i $2n-1$.', 'Zastosuj $a^{2}-b^{2}=(a-b)(a+b)$.', 'Odczytaj czynnik 8.'],
+    steps: ['Oznacz liczby jako $2n+1$ i $2n-1$.', 'Zastosuj $a^{2}-b^{2}=(a-b)(a+b)$.', 'Odczytaj czynnik 8.'], rubric: [{ criterion: 'Zapis liczb nieparzystych', points: 1 }, { criterion: 'Rozłożenie różnicy kwadratów', points: 1 }, { criterion: 'Wniosek o podzielności', points: 1 }],
   },
   {
     id: 'rr-18',

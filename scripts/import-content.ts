@@ -373,13 +373,13 @@ async function main() {
     })
     const existingByCode = new Map(existing.map((row) => [row.validation_metadata?.code ?? '', row.id]))
 
-    for (const task of tasks) {
+    await Promise.all(tasks.map(async (task) => {
       const lessonSlug = task.lessonSlug
       const lessonId = lessonSlug ? lessonIds.get(lessonSlug) ?? null : null
       const lesson = topic.lessons.find((item) => item.slug === lessonSlug)
       const subtopicId = lesson ? pickSubtopic(lesson.slug, subtopicIds) : subtopicIds[0] ?? null
-      await importTask(topicId, topic.slug, topic.level, subtopicId, lessonId, task, skillIdBySlug, existingByCode.get(task.id))
-    }
+      return importTask(topicId, topic.slug, topic.level, subtopicId, lessonId, task, skillIdBySlug, existingByCode.get(task.id))
+    }))
 
     summary.push(`${topic.title} (${topic.level}): ${topic.lessons.length} lekcji, ${tasks.length} zadań`)
   }
