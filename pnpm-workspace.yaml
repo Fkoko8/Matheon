@@ -1,8 +1,8 @@
-pmOnFail: ignore
+packages:
+  - '.'
 
-minimumReleaseAgeExclude:
-  - '@next/*'
-  - next
+onlyBuiltDependencies:
+  - esbuild
 
 allowBuilds:
   esbuild: true
