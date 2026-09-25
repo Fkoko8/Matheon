@@ -20,6 +20,12 @@ export interface ContentBlock {
   body: string
   /** Główne wzory lekcji — renderowane przez KaTeX w trybie display. */
   formula?: string
+  /**
+   * Opcjonalna figura: wykres funkcji, rysunek geometryczny albo oś liczbowa.
+   * Specyfikacja w `lib/figures/spec.ts` (rodzaje `plot` / `geometry` / `numberline`);
+   * importer przepisuje ją do `lesson_blocks.content.figure` bez zmian schematu.
+   */
+  figure?: unknown
 }
 
 export interface ContentSkill {
@@ -87,6 +93,11 @@ export interface ContentTask {
   steps: string[]
   /** Kryteria oceniania zadań otwartych (matryca punktacji). */
   rubric?: { criterion: string; points: number }[]
+  /**
+   * Rysunek do treści zadania (wykres, figura geometryczna, oś liczbowa).
+   * Specyfikacja w `lib/figures/spec.ts`; importer zapisuje w `validation_metadata.figure`.
+   */
+  figure?: unknown
   /** Źródło: 'authored' dla zadań autorskich, 'cke' dla zadań z arkuszy CKE. */
   sourceType?: 'authored' | 'cke'
   sourceName?: string

@@ -245,6 +245,21 @@ export const realneTasks: ContentTask[] = [
     hints: ['Odległość $x$ od 1 jest nie większa niż 2.', 'Zapisz przedział: $x \\in [-1, 3]$.'],
     solution: 'Z nierówności $|x-1| \\leq 2$ wynika $-2 \\leq x-1 \\leq 2$, czyli $-1 \\leq x \\leq 3$. Liczby całkowite w tym przedziale to $-1, 0, 1, 2, 3$, a ich suma wynosi $5$.',
     steps: ['Rozpisz moduł jako podwójną nierówność.', 'Wyznacz przedział rozwiązań.', 'Zsumuj liczby całkowite z przedziału.'],
+    figure: {
+      kind: 'numberline',
+      caption: 'Rozwiązanie $|x-1| \\leq 2$ to przedział $[-1, 3]$ — zaznacz liczby całkowite.',
+      min: -4,
+      max: 6,
+      step: 1,
+      intervals: [{ from: -1, to: 3, fromClosed: true, toClosed: true, color: 'blue' }],
+      points: [
+        { value: -1, label: '-1', color: 'emerald' },
+        { value: 0, label: '0', color: 'emerald' },
+        { value: 1, label: '1', color: 'emerald' },
+        { value: 2, label: '2', color: 'emerald' },
+        { value: 3, label: '3', color: 'emerald' },
+      ],
+    },
   },
   {
     id: 'rr-16',

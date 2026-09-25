@@ -34,6 +34,8 @@ export interface PracticeQuestion {
   id: string
   title: string
   prompt: string
+  /** Rysunek do treści zadania (wykres/figura/oś) — specyfikacja z `validation_metadata.figure`. */
+  figure?: unknown
   type: PracticeQuestionType
   points: number
   difficulty: number
@@ -240,6 +242,7 @@ function mapQuestion(row: Record<string, unknown>): PracticeQuestion {
     id: String(row.id),
     title: row.title ? String(row.title) : prompt.slice(0, 70),
     prompt,
+    figure: metadata.figure ?? undefined,
     type: (String(row.question_type ?? 'text') as PracticeQuestionType) ?? 'text',
     points: Number(row.points ?? 1),
     difficulty: Number(row.difficulty ?? 1),

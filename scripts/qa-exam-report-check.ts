@@ -74,7 +74,7 @@ async function main() {
   let questions: ExamQuestionRow[] = []
 
   for (const candidate of exams ?? []) {
-    const rows = await json<ExamQuestionRow[]>(`${base}/rest/v1/exam_questions?exam_id=eq.${candidate.id}&select=question_id,question_number,points,questions(question_text,question_type,correct_answer,validation_metadata,skills)&order=order_index&limit=20`, { headers: service })
+    const rows = await json<ExamQuestionRow[]>(`${base}/rest/v1/exam_questions?exam_id=eq.${candidate.id}&select=question_id,question_number,points,questions(question_text,question_type,correct_answer,validation_metadata,skills)&order=order_index&limit=50`, { headers: service })
     if (!Array.isArray(rows) || rows.length < 3) continue
     const hasOpen = rows.some((row) => row.questions?.question_type === 'open' || row.questions?.question_type === 'proof')
     if (!hasOpen) continue

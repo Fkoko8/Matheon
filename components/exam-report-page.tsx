@@ -12,6 +12,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { AlertTriangle, ArrowRight, Check, ChevronDown, Loader2, RefreshCw, Target, TrendingUp } from 'lucide-react'
 import { MathText } from '@/components/math-text'
+import { FigureInline } from '@/components/figure'
 import { buildTutorTaskHref } from '@/lib/ai/task-context'
 import { examGradingSchemaReady, gradeOpenAnswer, getExamHistory, loadExamReport, retryExam, type ExamAttempt, type ExamReport, type ExamReportRow } from '@/lib/exams'
 
@@ -158,6 +159,7 @@ export function ExamReportPage({ attemptId, exit }: { attemptId: string; exit: (
                 {isExpanded && (
                   <div className="mt-4 flex flex-col gap-4 border-t border-white/[0.07] pt-4">
                     <p className="text-sm leading-7 text-slate-200"><MathText>{row.question.questionText}</MathText></p>
+                    {row.question.figure != null && <FigureInline spec={row.question.figure} />}
                     <p className="text-xs text-slate-500">Twoja odpowiedź: <span className="text-slate-300">{row.answer.trim() || 'brak'}</span></p>
                     <p className="text-xs text-slate-500">Odpowiedź wzorcowa: <span className="text-emerald-300"><MathText>{row.question.correctAnswer}</MathText></span></p>
                     {row.question.steps.length > 0 && (

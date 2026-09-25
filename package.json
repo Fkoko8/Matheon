@@ -10,13 +10,16 @@
     "typecheck": "tsc --noEmit",
     "content:import": "tsx scripts/import-content.ts",
     "content:embed": "tsx scripts/embed-knowledge.ts",
-    "qa:auth": "node scripts/qa-auth-check.mjs",
-    "qa:exam": "node scripts/qa-exam-check.mjs",
-    "qa:content": "node scripts/qa-content-check.mjs",
-    "qa:examreport": "tsx scripts/qa-exam-report-check.ts",
-    "qa:practice": "tsx scripts/qa-practice-check.ts",
-    "qa:calc": "tsx scripts/qa-calculator-check.ts",
-    "qa:ai": "tsx scripts/qa-ai-check.ts",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "qa:auth": "node --env-file=.env scripts/qa-auth-check.mjs",
+    "qa:exam": "node --env-file=.env scripts/qa-exam-check.mjs",
+    "qa:content": "node --env-file=.env scripts/qa-content-check.mjs",
+    "qa:examreport": "tsx --env-file=.env scripts/qa-exam-report-check.ts",
+    "qa:practice": "tsx --env-file=.env scripts/qa-practice-check.ts",
+    "qa:calc": "tsx --env-file=.env scripts/qa-calculator-check.ts",
+    "qa:figures": "tsx --env-file=.env scripts/qa-figures-check.ts",
+    "qa:ai": "tsx --env-file=.env scripts/qa-ai-check.ts",
     "qa": "pnpm qa:auth && pnpm qa:content && pnpm qa:calc && pnpm qa:exam && pnpm qa:practice",
     "qa:full": "pnpm qa && pnpm qa:examreport && pnpm qa:ai"
   },
@@ -46,6 +49,7 @@
     "postcss": "^8.5",
     "tailwindcss": "^4.3.3",
     "tsx": "^4.23.15",
-    "typescript": "5.7.3"
+    "typescript": "5.7.3",
+    "vitest": "^5.0.1"
   }
 }

@@ -61,6 +61,21 @@ select e.id,q.id,row_number() over(partition by e.id order by q.created_at),q.po
 from public.exams e join lateral (select id,points,created_at from public.questions where published=true and level=e.level order by created_at limit 20) q on true
 on conflict (exam_id,question_id) do nothing;
 
+-- Each exam needs at least one open/proof question with a rubric (validation_metadata.rubric)
+-- so partial-credit grading (migration 009) and qa-exam-report-check can run end to end.
+insert into public.exam_questions (exam_id,question_id,question_number,points,order_index)
+select e.id,q.id,(select coalesce(max(question_number),0)+1 from public.exam_questions eq where eq.exam_id=e.id),q.points,
+       (select coalesce(max(order_index),0)+1 from public.exam_questions eq where eq.exam_id=e.id)
+from public.exams e join lateral (
+  select id,points from public.questions
+  where published=true and level=e.level and question_type in ('open','proof')
+    and validation_metadata ? 'rubric'
+  order by created_at limit 1
+) q on true
+where not exists (select 1 from public.exam_questions eq join public.questions qq on qq.id=eq.question_id
+                  where eq.exam_id=e.id and qq.question_type in ('open','proof'))
+on conflict (exam_id,question_id) do nothing;
+
 insert into public.achievements (name,description,icon,xp_reward,condition_type,condition_value) values
  ('Pierwszy krok','Rozwiąż pierwsze zadanie.','target',50,'answers',1),
  ('Regularność','Ucz się przez 7 dni z rzędu.','flame',200,'streak',7),

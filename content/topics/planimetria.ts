@@ -44,6 +44,25 @@ export const planimetria: ContentTopic = {
           body: 'W trójkącie jeden kąt ma miarę $40^{\\circ}$, a drugi jest dwa razy większy od trzeciego. Ile wynosi najmniejszy kąt? Niech trzeci kąt to $x$, wtedy drugi to $2x$. Mamy $40^{\\circ} + 2x + x = 180^{\\circ}$, czyli $3x = 140^{\\circ}$, więc $x \\approx 46{,}67^{\\circ}$. Kąty: $40^{\\circ}$, $93{,}33^{\\circ}$ i $46{,}67^{\\circ}$.',
         },
         {
+          type: 'diagram',
+          title: 'Trójkąt i oznaczenia kątów',
+          body: 'Standardowe oznaczenia: wierzchołki wielkimi literami, kąty greckimi, bok $a$ leży naprzeciw kąta $\\alpha$.',
+          figure: {
+            caption: 'Suma kątów: $\\alpha + \\beta + \\gamma = 180^{\\circ}$.',
+            kind: 'geometry',
+            elements: [
+              { type: 'polyline', points: [[0, 0], [8, 0], [2.5, 4.5]], closed: true, color: 'violet' },
+              { type: 'namedPoint', id: 'A', at: [0, 0] },
+              { type: 'namedPoint', id: 'B', at: [8, 0] },
+              { type: 'namedPoint', id: 'C', at: [2.5, 4.5] },
+              { type: 'angle', vertex: [0, 0], fromDeg: 0, toDeg: 61, r: 1.6, color: 'amber', label: 'α' },
+              { type: 'angle', vertex: [8, 0], fromDeg: 119, toDeg: 180, r: 1.6, color: 'amber', label: 'β' },
+              { type: 'angle', vertex: [2.5, 4.5], fromDeg: 241, toDeg: 299, r: 1.4, color: 'amber', label: 'γ' },
+            ],
+            labels: { A: 'A', B: 'B', C: 'C' },
+          },
+        },
+        {
           type: 'heading',
           title: 'Przystawanie i podobieństwo',
           body: 'Trójkąty przystające, gdy mają trzy równe boki (SSS). Podobne są, gdy mają dwa kąty równe (AA) — to najczęściej używana cecha. Trzeci kąt wynika wtedy automatycznie z sumy kątów. Trójkąty podobne mają proporcjonalne boki, a współczynnik podobieństwa jest stały.',
@@ -58,6 +77,25 @@ export const planimetria: ContentTopic = {
           type: 'example',
           title: 'Przykład — trójkąt podobny',
           body: 'Niech $M$ będzie środkiem boku $BC$ w trójkącie $ABC$, a przez $M$ poprowadzono prostą równoległą do $AB$, która przecina $AC$ w punkcie $N$. Wtedy $\\triangle CMN \\sim \\triangle CBA$ — kąty naprzemienne oraz wspólny kąt przy wierzchołku $C$. Stąd $\\frac{CN}{CA} = \\frac{CM}{CB} = \\frac{1}{2}$, więc $AN = \\frac{1}{2} AC$. Schemat jest powtarzalny: środek boku i prosta równoległa do innego boku zawsze dają stosunek $2 : 1$.',
+        },
+        {
+          type: 'diagram',
+          title: 'Szkic do przykładu o podobieństwie',
+          body: 'Odcinek $MN$ jest równoległy do $AB$ — na rysunku zaznaczono oba trójkąty podobne.',
+          figure: {
+            caption: '$\\triangle CMN \\sim \\triangle CBA$ — prosta równoległa do boku tworzy trójkąt podobny w skali $1 : 2$.',
+            kind: 'geometry',
+            elements: [
+              { type: 'polyline', points: [[0, 0], [8, 0], [3, 5]], closed: true, color: 'slate' },
+              { type: 'segment', a1: [1.5, 2.5], a2: [5.5, 2.5], color: 'violet', width: 2.5 },
+              { type: 'namedPoint', id: 'A', at: [0, 0] },
+              { type: 'namedPoint', id: 'B', at: [8, 0] },
+              { type: 'namedPoint', id: 'C', at: [3, 5] },
+              { type: 'namedPoint', id: 'M', at: [1.5, 2.5], color: 'amber' },
+              { type: 'namedPoint', id: 'N', at: [5.5, 2.5], color: 'amber' },
+            ],
+            labels: { A: 'A', B: 'B', C: 'C', M: 'M', N: 'N' },
+          },
         },
         {
           type: 'warning',

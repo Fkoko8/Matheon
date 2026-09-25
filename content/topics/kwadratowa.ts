@@ -43,6 +43,23 @@ export const kwadratowa: ContentTopic = {
 | iloczynowa $a(x-x_1)(x-x_2)$ | miejsca zerowe $x_1, x_2$, oś symetrii $x = \\frac{x_1+x_2}{2}$ |`,
         },
         {
+          type: 'diagram',
+          title: 'Dwa kierunki ramion',
+          body: 'Parabola dla $a > 0$ ma minimum w wierzchołku, dla $a < 0$ — maksimum. Na rysunku obie funkcje mają ten sam wierzchołek $(0, -3)$ albo $(0, 3)$ po odbiciu.',
+          figure: {
+            caption: 'Znak współczynnika $a$ decyduje o kierunku ramion i rodzaju ekstremum.',
+            kind: 'plot',
+            xMin: -3.4,
+            xMax: 3.4,
+            yMin: -4.5,
+            yMax: 4.5,
+            curves: [
+              { expr: 'x^2-3', label: 'a > 0: minimum', color: 'violet' },
+              { expr: '-x^2+3', label: 'a < 0: maksimum', color: 'rose' },
+            ],
+          },
+        },
+        {
           type: 'formula',
           title: 'Wierzchołek — trzy sposoby',
           body: 'Wybierz metodę odpowiednią do danych, ale wynik zawsze możesz zweryfikować inną.',
@@ -60,6 +77,26 @@ export const kwadratowa: ContentTopic = {
 **Postać iloczynowa:** $f(x) = (x-1)(x-5)$.
 
 **Kontrola:** oś symetrii z miejsc zerowych $\\frac{1+5}{2} = 3$ = $p$ — zgadza się.`,
+        },
+        {
+          type: 'diagram',
+          title: 'Wykres omówionego przykładu',
+          body: 'Zwróć uwagę, jak wszystkie odczytane informacje widoczne są na rysunku: ramiona w górę, wierzchołek poniżej osi, miejsca zerowe po obu stronach.',
+          figure: {
+            caption: 'Wykres $f(x) = x^{2} - 6x + 5$ z zaznaczonym wierzchołkiem $W = (3, -4)$, miejscami zerowymi i osią symetrii $x = 3$.',
+            kind: 'plot',
+            xMin: -1,
+            xMax: 7,
+            yMin: -6,
+            yMax: 8,
+            curves: [{ expr: 'x^2-6x+5', label: 'f(x)=x^2-6x+5', color: 'violet' }],
+            points: [
+              { x: 3, y: -4, label: 'W(3, -4)', color: 'amber' },
+              { x: 1, y: 0, label: '1', color: 'emerald' },
+              { x: 5, y: 0, label: '5', color: 'emerald' },
+            ],
+            guides: [{ orientation: 'vertical', value: 3 }],
+          },
         },
         {
           type: 'paragraph',
@@ -124,6 +161,25 @@ export const kwadratowa: ContentTopic = {
 | $\\Delta > 0$ | dwa | przecina w dwóch punktach |
 | $\\Delta = 0$ | jedno $x_0 = -\\frac{b}{2a}$ | dotyka w wierzchołku |
 | $\\Delta < 0$ | brak | nie przecina |`,
+        },
+        {
+          type: 'diagram',
+          title: 'Parabola dla $\\Delta > 0$',
+          body: 'Przykład: $f(x) = x^{2} - 2x - 3$. Delta $\\Delta = (-2)^2 - 4 \\cdot 1 \\cdot (-3) = 16 > 0$, więc dwa miejsca zerowe: $x_1 = -1$ i $x_2 = 3$.',
+          figure: {
+            caption: '$\\Delta > 0$: parabola przecina oś $OX$ w dwóch punktach.',
+            kind: 'plot',
+            xMin: -2.5,
+            xMax: 4.5,
+            yMin: -5,
+            yMax: 6,
+            curves: [{ expr: 'x^2-2x-3', label: 'f(x)=x^2-2x-3', color: 'violet' }],
+            points: [
+              { x: -1, y: 0, label: 'x₁ = -1', color: 'emerald' },
+              { x: 3, y: 0, label: 'x₂ = 3', color: 'emerald' },
+              { x: 1, y: -4, label: 'W(1, -4)', color: 'amber' },
+            ],
+          },
         },
         {
           type: 'example',

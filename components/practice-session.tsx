@@ -14,6 +14,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import Link from 'next/link'
 import { ArrowLeft, ArrowRight, Check, CircleHelp, Lightbulb, Loader2, Sparkles, Target, TriangleAlert } from 'lucide-react'
 import { MathText } from '@/components/math-text'
+import { FigureInline } from '@/components/figure'
 import { buildTutorTaskHref } from '@/lib/ai/task-context'
 import {
   buildPracticeQueue,
@@ -281,6 +282,7 @@ export function PracticeSession(props: PracticeSessionProps) {
         </div>
 
         <h2 className="mt-5 text-base font-medium leading-7 text-white"><MathText>{current.prompt}</MathText></h2>
+        {current.figure != null && <FigureInline spec={current.figure} />}
 
         {current.options.length > 0 ? (
           <div className="mt-6 flex flex-col gap-2">

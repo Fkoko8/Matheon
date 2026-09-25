@@ -39,6 +39,8 @@ export type ExamQuestion = {
   number: number
   points: number
   questionText: string
+  /** Rysunek do zadania (specyfikacja z `validation_metadata.figure`). */
+  figure?: unknown
   questionType: string
   topicId: string
   topicName?: string
@@ -136,6 +138,7 @@ function mapQuestion(row: Record<string, unknown>): ExamQuestion {
     number: Number(row.question_number),
     points: Number(row.points),
     questionText: String((row.questions as Record<string, unknown> | undefined)?.question_text ?? ''),
+    figure: metadata.figure ?? undefined,
     questionType: String((row.questions as Record<string, unknown> | undefined)?.question_type ?? 'open'),
     topicId: String((row.questions as Record<string, unknown> | undefined)?.topic_id ?? ''),
     topicName: topic?.name ? String(topic.name) : undefined,

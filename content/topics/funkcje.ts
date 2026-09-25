@@ -49,6 +49,25 @@ export const funkcje: ContentTopic = {
 - **monotoniczność:** rośnie na $[-3, -1]$, maleje na $[-1, 2]$, rośnie na $[2, 5]$`,
         },
         {
+          type: 'diagram',
+          title: 'Szkic omówionego wykresu',
+          body: 'Punkty z treści zadania połączone łamaną — dokładnie taki szkic warto zrobić na brudnopisie.',
+          figure: {
+            caption: 'Dziedzina $[-3, 5]$, zbiór wartości $[-2, 4]$, monotoniczność odczytana z przebiegu.',
+            kind: 'plot',
+            xMin: -4,
+            xMax: 6,
+            yMin: -3.5,
+            yMax: 5,
+            points: [
+              { x: -3, y: 0, label: '(-3, 0)', color: 'emerald' },
+              { x: -1, y: 4, label: '(-1, 4)', color: 'amber' },
+              { x: 2, y: -2, label: '(2, -2)', color: 'rose' },
+              { x: 5, y: 1, label: '(5, 1)', color: 'emerald' },
+            ],
+          },
+        },
+        {
           type: 'heading',
           title: 'Dziedzina funkcji zadanej wzorem',
           body: 'Dwa zakazy: **nie dzielimy przez zero** i **nie wyciągamy pierwiastka parzystego stopnia z liczby ujemnej**. Dziedziną są wszystkie liczby poza tymi, które łamią któryś z zakazów.',
@@ -108,6 +127,25 @@ $g(x) = \\sqrt{2x - 6}$: warunek $2x - 6 \\geq 0$, więc $x \\geq 3$, dziedzina 
           title: 'Wzór i współczynniki',
           body: 'Wykres to prosta: $a$ to nachylenie (o ile zmienia się wartość, gdy argument rośnie o $1$), $b$ to przecięcie z osią $OY$. $a > 0$ — rosnąca, $a < 0$ — malejąca, $a = 0$ — stała.',
           formula: 'f(x) = ax + b \\quad \\text{gdzie} \\quad a = \\frac{\\Delta y}{\\Delta x} = \\frac{f(x_2) - f(x_1)}{x_2 - x_1}',
+        },
+        {
+          type: 'diagram',
+          title: 'Znaczenie współczynników $a$ i $b$',
+          body: 'Ta sama rzędna przecięcia $b = 1$, trzy różne nachylenia: rosnąca, stroma rosnąca i malejąca.',
+          figure: {
+            caption: 'Współczynnik $a$ steruje nachyleniem, $b$ — przecięciem z osią $OY$.',
+            kind: 'plot',
+            xMin: -4,
+            xMax: 4,
+            yMin: -5,
+            yMax: 6,
+            curves: [
+              { expr: 'x+1', label: 'a = 1', color: 'violet' },
+              { expr: '3x+1', label: 'a = 3', color: 'emerald' },
+              { expr: '-0.5x+1', label: 'a = -1/2', color: 'rose' },
+            ],
+            points: [{ x: 0, y: 1, label: 'b = 1', color: 'amber' }],
+          },
         },
         {
           type: 'example',

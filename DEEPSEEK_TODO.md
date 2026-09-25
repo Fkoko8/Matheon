@@ -1,0 +1,144 @@
+# MATHEON — lista zadań do wykonania (handoff dla DeepSeek v4)
+
+> Ten plik powstał 2026-09-25 na podstawie analizy kodu i uruchomienia pełnego zestawu testów QA.
+> Szczegółowa wizja produktu i historia prac: `PLAN_ROZBUDOWY.md`. Ten plik zawiera **konkretne, wykonawcze zadania** w kolejności priorytetów.
+> Zanim zaczniesz cokolwiek zmieniać: przeczytaj sekcję „Pułapki techniczne” na dole.
+
+---
+
+## 1. Kontekst w pigułce
+
+- **Produkt:** polska platforma do nauki do matury z matematyki (Formuła 2023, podstawa + rozszerzenie).
+- **Stack:** Next.js 16 (App Router) + React 19 + TypeScript, Tailwind 4, shadcn/ui, Supabase (Auth + Postgres + RLS + pgvector), Vercel AI SDK (`ai` + gateway), pnpm.
+- **Baza:** Supabase — migracje `supabase/migrations/001–011` (011 jeszcze **nie wgrana** do środowiska).
+- **Treść:** 20 autorskich działów w `content/topics/`, bank zadań `content/tasks/`, importer `pnpm content:import`, testy `scripts/qa-*.ts|mjs`.
+- **Git:** praca na branchu `master`; **30 plików zmian niewcommittowanych** (silnik figur SVG `lib/figures/`, `components/figure.tsx`, migracja 011, `scripts/qa-figures-check.ts`).
+
+## 2. Stan zweryfikowany testami (wynik analizy)
+
+| Test | Komenda | Wynik |
+|---|---|---|
+| Typy | `pnpm typecheck` | ✅ 0 błędów |
+| Treść + routing | `pnpm qa:content` | ✅ wszystkie |
+| Silnik nauki / SM-2 | `pnpm qa:practice` | ✅ wszystkie |
+| AI (limity, RLS) | `pnpm qa:ai` | ✅ wszystkie |
+| Kalkulator | `pnpm qa:calc` | ✅ wszystkie |
+| Figury SVG | `pnpm qa:figures` | ✅ wszystkie |
+| Raport egzaminu | `pnpm qa:examreport` | ⚠️ **2 FAIL** — naprawia je migracja 011 (nie wgrana) |
+
+Fazy 0–4 (routing, auth, silnik nauki, egzaminy, AI) — **zrealizowane**. Poniżej to, co zostało.
+
+---
+
+## 3. Zadania — BLOKERY (zrób najpierw, w tej kolejności)
+
+### 3.1. Wgraj migrację 011 do Supabase ⚠️ najważniejsze
+
+Plik: `supabase/migrations/011_exam_finish_mistakes_and_null_guard.sql`
+
+Naprawia 2 znane FAIL-e `qa:examreport`:
+1. Zadania pozostawione **bez odpowiedzi** nie trafiały do pętli błędów `mistakes`,
+2. `finish_exam_attempt` zwracał kompozyt NULL serializowany przez PostgREST jako `{"id":null,...}` zamiast literalnego `null` — ochrona „Ta próba została już zakończona.” w `lib/exams.ts` nigdy nie działała. Typ zwracany zmieniony na `json`.
+
+**Jak:** DDL **nie przechodzi przez REST/service role** (PGRST202) — uruchom SQL ręcznie w Supabase SQL Editor (dashboard) albo `psql`. Migracje 001–010 są już wgrane — sprawdź `select * from exam_answers limit 1` (kolumny `points_earned` z 009 działają).
+
+**Weryfikacja:** `pnpm exec tsx --env-file=.env scripts/qa-exam-report-check.ts` → musi być 100% OK (dzisiaj: 20 OK / 2 FAIL, oba FAIL dotyczą właśnie tej migracji).
+
+### 3.2. Utrwal ładowanie `.env` w skryptach QA
+
+Skrypty `tsx` **nie ładują same** `.env` — dzisiaj `pnpm qa:examreport` i `pnpm qa:ai` wyrzucają `Brak konfiguracji` bez ręcznego `--env-file=.env`. Napraw w `package.json`:
+
+```json
+"qa:examreport": "tsx --env-file=.env scripts/qa-exam-report-check.ts",
+"qa:practice":   "tsx --env-file=.env scripts/qa-practice-check.ts",
+"qa:ai":         "tsx --env-file=.env scripts/qa-ai-check.ts",
+"qa:calc":       "tsx --env-file=.env scripts/qa-calculator-check.ts",
+"qa:figures":    "tsx --env-file=.env scripts/qa-figures-check.ts"
+```
+
+Skrypty `.mjs` (`qa:auth`, `qa:exam`, `qa:content`) odpalane przez `node` — dodaj `--env-file=.env` analogicznie. **Weryfikacja:** `pnpm qa:full` ma przejść bez żadnych ręcznych kroków.
+
+### 3.3. Commit-nij 30 plików oczekujących zmian
+
+W working tree jest cała praca nad silnikiem figur + migracja 011 + poprawki raportu egzaminu. Commitnij **po** wgraniu migracji 3.1 i zielonym `qa:examreport`.
+
+### 3.4. Klucz `AI_GATEWAY_API_KEY`
+
+Brak go w `.env` (są tylko `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, `SERVICE_ROLE`). Bez niego tutor/generator/RAG nie działają produkcyjnie (RAG schodzi na tryb słowny, tutor zwraca kontrolowany błąd). Po dodaniu klucza:
+1. `pnpm content:embed` — backfill wektorów `knowledge_chunks`,
+2. sprawdź, że `pnpm content:import` dolicza embeddingi nowych fragmentów automatycznie.
+
+---
+
+## 4. Zadania — dokończenie Fazy 0
+
+### 4.1. Onboarding po rejestracji
+Kreator po pierwszym logowaniu: zakres (podstawa/rozszerzenie), data matury, cel %, dni nauki, dzienny czas → zapis do `profiles` + start planu. Opcjonalnie: krótki quiz diagnostyczny (10 zadań) wyznaczający poziom startowy. Podepnij pod `lib/learning/planner/*`.
+
+### 4.2. Testy jednostkowe (vitest) + CI
+- Dodaj `vitest` i testy dla czystych modułów: `lib/learning/skill-model.ts` (gradeAnswer, SM-2, decayedMastery), planner (priorytety), `lib/figures/evaluate.ts` + `spec.ts` (parser — przypadki z `scripts/qa-figures-check.ts` można przenieść/rozbić), kalkulator `lib/calculator.ts`.
+- Dodaj GitHub Actions: `pnpm typecheck` + `pnpm test` (+ `pnpm qa:figures` jako minimum bez bazy). Sekrety bazy dawać tylko na workflow_dispatch.
+
+---
+
+## 5. Zadania — Faza 1 (treść)
+
+### 5.1. Ekspansja banku zadań: 259 → ≥600
+Proces dopisywania działu (powtarzalny, opisany w `PLAN_ROZBUDOWY.md`):
+1. `content/tasks/<slug>.ts` — zadania z kodem, poziomem, podpowiedziami, rozwiązaniami krok po kroku, matrycą punktów (`validation_metadata.rubric`) i opcjonalną figurą (`validation_metadata.figure` — spec w `lib/figures/spec.ts`),
+2. `pnpm content:import` → `pnpm qa:content` → `pnpm qa:figures`.
+
+### 5.2. Bank zadań CKE 2015–2026
+Zadania z arkuszy CKE (licencja CC BY 3.0 PL, wymaga atrybucji): `source_name='CKE'`, rok, `cke_requirement_code`. Osobny krok po zadaniach autorskich.
+
+### 5.3. Odłożone wymagania CKE
+4 wymagania bez `lesson_ready`: `I.9`, `I.10`, `Z.1`, `Z.2` (statusy w `content/cke-requirements.ts`). Pozostałe 74/78 są gotowe.
+
+---
+
+## 6. Zadania — Faza 5 (UX)
+
+1. **Mobile-first + PWA** — manifest, ikony, offline shell, egzamin i powtórki na telefonie.
+2. **Edytor wzorów LaTeX w odpowiedziach** — pasek symboli (√, ², π, ułamki) przy textarea/solverze.
+3. **Osiągnięcia** — odkleić `user_achievements` z bazy (tabela istnieje): reguły w `lib/learning/achievements.ts`, wyzwalanie przez `learning_events`, toast + animacja.
+4. **Wykresy w statystykach** — trend mastery, accuracy per dział, aktywność dzienna (Recharts albo własny SVG spójny z `components/figure.tsx`).
+5. **Globalny search ⌘K** — filtrowanie realnych lekcji/zadań/arkuszy (obecny SearchOverlay jest na mockach).
+6. **Wykresy w kolejnych działach** — silnik figur jest gotowy; dodać figury do reszty działów w `content/topics/` (teraz: kwadratowa, funkcje, planimetria, trygonometria, geometria, statystyka, realne).
+
+---
+
+## 7. Zadania — Faza 6 (poler do final)
+
+1. Audyt RLS (każda tabela, wszystkie operacje; `security invoker` vs `definer`).
+2. Wydajność: server components dla lekcji, paginacja banku zadań, `next/image`.
+3. Telemetria: eventy produktowe w `learning_events` + dashboard metryk (retencja D7).
+4. Korekta merytoryczna treści (nauczyciel) → `validation_status='reviewed'` przed publikacją.
+5. SEO/landing: strona marketingowa dla niezalogowanych (teraz `/` = dashboard za gate'em), meta/OG, sitemap.
+6. Testy E2E Playwright: rejestracja → onboarding → lekcja → trening → egzamin → plan.
+7. Do dalszej przyszłości: zmaterializowana tabela `user_skills` (cache stanu), gdy event sourcing w `learning_events` przestanie być szybki; generator AI zapisujący zadania z umiejętnościami przez wspólny silnik.
+
+---
+
+## 8. Pułapki techniczne (przeczytaj przed pracą!)
+
+1. **DDL nie przez REST.** W tym środowisku Supabase DDL przez PostgREST/service role nie działa (PGRST202). Migracje SQL wgrywaj ręcznie (SQL Editor / psql) i tylko wtedy odhaczaj w planie.
+2. **`.env` ma spacje wokół `=`** (`NEXT_PUBLIC_SUPABASE_URL = https://...`). Node `--env-file` to parsuje poprawnie, ale inne parsery (np. bash `source`, dotenv w starych wersjach) mogą się wywalić. Nie „poprawiaj” pliku bez konsultacji — klucze działają.
+3. **Klucze w `.env`:** `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` (anon), `SERVICE_ROLE` (admin API — używane przez skrypty QA; nie wystawiaj go nigdy do klienta).
+4. **Idempotentny importer.** `pnpm content:import` upsertuje po `slug`/`code`/`validation_metadata.code` i **nie wolno mu usuwać historii odpowiedzi uczniów**. Zmiany w treści publikuj przez importer, nie ręcznie w bazie.
+5. **38 pytań z banku egzaminacyjnego** jest powiązanych z `exam_questions` (FK `ON DELETE RESTRICT`) — nie próbuj ich usuwać.
+6. **`pnpm qa` vs `qa:full`:** `qa` nie wymaga migracji 009–011; `qa:full` wymaga 009/010 (+011 dla pełnej zieleni). Po wgraniu 011 oba mają być zielone.
+7. **Nie wprowadzaj mocków z powrotem.** Stare warstwy mock (`lib/mock-data.ts`, task-engine, DEMO_USER_ID) były celowo usunięte — wszystkie ekrany biorą dane z bazy pod RLS zalogowanego użytkownika.
+8. **Odpowiedzi:** sprawdzanie przez `normalizeAnswer` + tolerancja liczbowa (`lib/learning/practice.ts`), nie string-match. Zadania otwarte: samoocena wg matrycy `rubric`.
+9. **LaTeX:** renderowanie przez `components/math-text.tsx` (KaTeX). Treść pisz z LaTeX-em w blokach.
+10. **Odpowiadaj/wydawaj komuniky po polsku** — produkt i cała treść są polskie (kod i identyfikatory zostają po angielsku).
+
+## 9. Komendy weryfikacyjne (po każdej większej zmianie)
+
+```bash
+pnpm typecheck                    # typy
+pnpm qa:figures                   # figury (bez bazy)
+pnpm qa:full                      # pełny zestaw: treść, praktyka, egzaminy, AI (wymaga .env)
+pnpm content:import               # publikacja treści (idempotentna)
+```
+
+**Definicja „skończone” dla 3.1–3.4:** `pnpm qa:full` 100% zielony na niezmienionym kodzie + commit historii bezplikowo odzwierciedla stan planu (`PLAN_ROZBUDOWY.md` odhaczone).

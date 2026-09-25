@@ -20,6 +20,17 @@ export const kwadratowaTasks: ContentTask[] = [
     hints: ['W postaci $a(x-p)^2 + q$ wierzchołek to $(p, q)$.', 'Porównaj z $(x-2)^2 - 9$.'],
     solution: 'W postaci kanonicznej $f(x) = (x-2)^2 - 9$ wierzchołek to $(2, -9)$, więc odcięta wierzchołka $p = 2$.',
     steps: ['Rozpoznaj postać kanoniczną $a(x-p)^2 + q$.', 'Odczytaj $p = 2$.'],
+    figure: {
+      kind: 'plot',
+      caption: 'Parabola z wierzchołkiem $W = (2, -9)$ — oś symetrii to $x = 2$.',
+      xMin: -2,
+      xMax: 6,
+      yMin: -10,
+      yMax: 8,
+      curves: [{ expr: '(x-2)^2-9', color: 'violet' }],
+      points: [{ x: 2, y: -9, label: 'W(2, -9)', color: 'amber' }],
+      guides: [{ orientation: 'vertical', value: 2 }],
+    },
   },
   {
     id: 'kw-02',

@@ -115,6 +115,22 @@ export const geometria: ContentTopic = {
           body: 'Punkty $A(-1, 3)$ i $B(4, -1)$: $|AB| = \\sqrt{(4 - (-1))^{2} + (-1 - 3)^{2}} = \\sqrt{25 + 16} = \\sqrt{41}$. Środek odcinka: $S = (\\frac{-1 + 4}{2}, \\frac{3 + (-1)}{2}) = (1{,}5, 1)$.',
         },
         {
+          type: 'diagram',
+          title: 'Odcinek AB ze średkiem S',
+          body: 'Zaznaczono punkty, odcinek i jego środek symetrii.',
+          figure: {
+            caption: '$|AB| = \\sqrt{41}$, środek $S = (1{,}5,\ 1)$ — średnia arytmetyczna współrzędnych.',
+            kind: 'geometry',
+            elements: [
+              { type: 'segment', a1: [-1, 3], a2: [4, -1], color: 'violet', width: 2.5 },
+              { type: 'namedPoint', id: 'A', at: [-1, 3] },
+              { type: 'namedPoint', id: 'B', at: [4, -1] },
+              { type: 'namedPoint', id: 'S', at: [1.5, 1], color: 'amber' },
+            ],
+            labels: { A: 'A(-1, 3)', B: 'B(4, -1)', S: 'S(1.5, 1)' },
+          },
+        },
+        {
           type: 'formula',
           title: 'Odległość punktu od prostej',
           body: 'Odległość punktu $P(x_0, y_0)$ od prostej $Ax + By + C = 0$ wynosi:',
@@ -124,6 +140,23 @@ export const geometria: ContentTopic = {
           type: 'paragraph',
           title: 'Czemu jest wartość bezwzględna?',
           body: 'Wyrażenie $A x_{0} + B y_{0} + C$ może być dodatnie albo ujemne — zależy od tego, po której stronie prostej leży punkt. Wartość bezwzględna zapewnia, że odległość jest zawsze dodatnia. Moduł z poprzedniej lekcji działa dokładnie tak samo.',
+        },
+        {
+          type: 'diagram',
+          title: 'Rysunek — odległość punktu od prostej',
+          body: 'Odległość to długość odcinka prostopadłego poprowadzonego z punktu do prostej — nie prosta „w skosie”.',
+          figure: {
+            caption: 'Punkt $P$, prosta i odcinek $PN \\perp$ prosta — jego długość daje wzór $d = \\frac{|Ax_0 + By_0 + C|}{\\sqrt{A^2 + B^2}}$.',
+            kind: 'geometry',
+            elements: [
+              { type: 'segment', a1: [-2, 1], a2: [8, 6], color: 'slate', width: 2 },
+              { type: 'segment', a1: [4, 4], a2: [3.2, 3.6], color: 'rose', width: 2.5 },
+              { type: 'rightAngle', vertex: [3.2, 3.6], dirDeg: 141, size: 0.4 },
+              { type: 'namedPoint', id: 'P', at: [4, 4], color: 'rose' },
+              { type: 'namedPoint', id: 'N', at: [3.2, 3.6], color: 'amber' },
+            ],
+            labels: { P: 'P', N: 'N' },
+          },
         },
         {
           type: 'example',

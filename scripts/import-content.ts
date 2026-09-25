@@ -251,7 +251,7 @@ async function importLesson(topicId: string, topicLevel: LearningLevel, subtopic
     body: lesson.blocks.map((block, index) => ({
       section_id: section.id,
       block_type: block.type,
-      content: { title: block.title ?? null, body: block.body, formula: block.formula ?? null },
+      content: { title: block.title ?? null, body: block.body, formula: block.formula ?? null, figure: block.figure ?? null },
       order_index: index,
     })),
   })
@@ -305,6 +305,7 @@ async function importTask(topicId: string, topicSlug: string, level: LearningLev
       options: task.options ?? [],
       steps: task.steps,
       rubric: task.rubric ?? [],
+      figure: task.figure ?? null,
     },
   }
 

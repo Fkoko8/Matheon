@@ -11,6 +11,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
 import { AlertTriangle, ArrowLeft, BarChart3, Check, Clock3, Flame, Loader2, RefreshCw, Sparkles, Target, TrendingUp } from 'lucide-react'
 import { MathText } from '@/components/math-text'
+import { FigureInline } from '@/components/figure'
 import { PracticeSession } from '@/components/practice-session'
 import {
   loadMistakesWithQuestions,
@@ -202,6 +203,7 @@ export function TrainingPage() {
                   <span className="text-slate-500">{question.points} pkt · {difficultyLabel(question.difficulty)}</span>
                 </div>
                 <h2 className="mt-4 line-clamp-3 text-sm font-medium leading-6 text-white"><MathText>{question.prompt}</MathText></h2>
+                {question.figure != null && <FigureInline spec={question.figure} />}
                 <div className="mt-3 flex flex-wrap gap-1.5">
                   {question.tags.slice(0, 3).map((tag) => (
                     <span key={tag} className="rounded-md bg-white/[0.06] px-2 py-0.5 text-[10px] text-slate-400">{tag}</span>
@@ -400,7 +402,10 @@ export function MistakesPage() {
                     <span className="text-[10px] text-slate-600">{mistake.attemptCount} prób · {new Date(mistake.lastSeenAt).toLocaleDateString('pl-PL', { day: 'numeric', month: 'short' })}</span>
                   </div>
                   {mistake.question && (
-                    <p className="mt-3 text-sm leading-6 text-slate-300"><MathText>{mistake.question.prompt}</MathText></p>
+                    <>
+                      <p className="mt-3 text-sm leading-6 text-slate-300"><MathText>{mistake.question.prompt}</MathText></p>
+                      {mistake.question.figure != null && <FigureInline spec={mistake.question.figure} />}
+                    </>
                   )}
                   <p className="mt-3 text-xs text-slate-500">Twoja odpowiedź: <span className="text-rose-300">{mistake.userAnswer || 'brak'}</span> · Poprawna: <span className="text-emerald-300"><MathText>{mistake.correctAnswer}</MathText></span></p>
                 </div>

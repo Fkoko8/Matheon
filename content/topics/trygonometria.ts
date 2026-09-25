@@ -43,6 +43,24 @@ export const trygonometria: ContentTopic = {
           body: 'Trójkąt prostokątny ma przyprostokątne $6$ i $8$. Dla kąta leżącego naprzeciw boku $6$: przeciwprostokątna $c = \\sqrt{36 + 64} = 10$, więc $\\sin \\alpha = \\frac{6}{10} = \\frac{3}{5}$. Tangens: $\\tan \\alpha = \\frac{6}{8} = \\frac{3}{4}$.',
         },
         {
+          type: 'diagram',
+          title: 'Trójkąt prostokątny z przykładu',
+          body: 'Przyprostokątne $6$ (pionowa $BC$) i $8$ (pozioma $AC$), przeciwprostokątna $10$. Kąt $\\alpha$ leży przy wierzchołku $A$, naprzeciw boku $BC = 6$.',
+          figure: {
+            kind: 'geometry',
+            caption: '$\\sin \\alpha = \\frac{|BC|}{|AB|} = \\frac{6}{10}$ — bok naprzeciw kąta $\\alpha$ do przeciwprostokątnej.',
+            elements: [
+              { type: 'polyline', points: [[0, 0], [8, 0], [0, 6]], closed: true, color: 'violet' },
+              { type: 'rightAngle', vertex: [0, 0], dirDeg: 0, size: 0.7 },
+              { type: 'namedPoint', id: 'A', at: [8, 0] },
+              { type: 'namedPoint', id: 'B', at: [0, 6] },
+              { type: 'namedPoint', id: 'C', at: [0, 0] },
+              { type: 'angle', vertex: [8, 0], fromDeg: 143, toDeg: 180, r: 1.5, color: 'amber', label: 'α' },
+            ],
+            labels: { A: 'A', B: 'B', C: 'C' },
+          },
+        },
+        {
           type: 'example',
           title: 'Przykład — wyznaczanie boku',
           body: 'Drabina o długości $5$ m opiera się o ścianę pod kątem $65^{\\circ}$ do podłoża. Na jakiej wysokości jest jej górny koniec? Wysokość to bok naprzeciw kąta: $h = 5 \\cdot \\sin 65^{\\circ} \\approx 5 \\cdot 0{,}9063 \\approx 4{,}53$ m. W zadaniach praktycznych podawaj wynik z zaokrągleniem i jednostką.',

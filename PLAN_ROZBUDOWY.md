@@ -13,7 +13,7 @@
 - [x] Jakość: zdjęte `typescript.ignoreBuildErrors`, dodany skrypt `pnpm typecheck`, strona 404
 - [ ] Onboarding po rejestracji (poziom, data matury, cel, dni nauki)
 - [ ] Testy jednostkowe (vitest) dla mastery / review / planner / walidatora + CI
-- [x] Rate limiting AI przeniesiony z pamięci procesu do Postgresa (`lib/ai/usage.ts`, liczniki na `ai_request_logs` — wymaga migracji **010**)
+- [x] Rate limiting AI przeniesiony z pamięci procesu do Postgresa (`lib/ai/usage.ts`, liczniki na `ai_request_logs` — migracja **010** wgrana, potwierdzona `pnpm qa:ai` 24/24 OK)
 
 ### Stan backendu Supabase (zweryfikowany testem REST/Auth)
 
@@ -22,7 +22,9 @@
 - [x] **Pełny test logowania E2E** (`pnpm qa:auth`): tymczasowy użytkownik → logowanie hasłem → sesja w formacie `@supabase/ssr` → wejście na `/`, `/exams`, `/plan`, `/stats` (200) i `/api/ai/tutor` (200 z sesją, 401 bez)
 - [x] Klucz `SERVICE_ROLE` działa (admin API)`; DDL przez REST jest niemożliwe (`PGRST202`)
 - [x] Zastosowane migracje: **001–008** (potwierdzone sondami na `exam_attempts`, `exam_answers`, `knowledge_chunks`, `ai_request_logs`, `skills`, `lesson_sections`, `lesson_blocks`, `learning_events`, `cke_requirements` oraz kolumnach z 003/004/005/007)
-- [ ] **Do uruchomienia ręcznie** (DDL nie przechodzi przez REST/service role): `supabase/migrations/009_exam_partial_credit.sql` (punktacja cząstkowa egzaminu) i `supabase/migrations/010_ai_usage_rls.sql` (polityka INSERT na `ai_request_logs`). Test `pnpm qa:examreport` i jedno sprawdzenie `pnpm qa:ai` wskazują wprost, gdy brakuje tych migracji.
+- [x] **Migracje 009 i 010 wgrane ręcznie** (DDL nie przechodzi przez REST/service role): `009_exam_partial_credit.sql` (punktacja cząstkowa egzaminu) i `010_ai_usage_rls.sql` (polityka INSERT na `ai_request_logs`). Potwierdzone: `pnpm qa:ai` 24/24 OK, `pnpm qa:examreport` — migracja OK, pozostały 2 FAIL-e silnika (naprawa: migracja 011).
+- [ ] **Do uruchomienia ręcznie**: `supabase/migrations/011_exam_finish_mistakes_and_null_guard.sql` — naprawia 2 błędy wykryte przez `pnpm qa:examreport`: (1) zadania pozostawione bez odpowiedzi nie trafiały do pętli błędów `mistakes`, (2) `finish_exam_attempt` zwracał kompozyt NULL, który PostgREST serializował jako obiekt `{"id":null,...}` zamiast literalnego `null` — ochrona „Ta próba została już zakończona.” w `lib/exams.ts` nigdy nie działała. Typ zwracany zmieniony na `json` (ten sam kształt payloadu).
+- [x] „Arkusz treningowy” ma zadanie otwarte z matrycą punktów (dowód nierówności, 3 kryteria) — dopisane do bazy i do `supabase/seed.sql` (świeże środowiska dostaną je automatycznie); `qa:examreport` czyta teraz do 50 pytań arkusza
 - [ ] **Klucz AI**: tutor, generator i embeddingi RAG działają na Vercel AI Gateway — wymagany `AI_GATEWAY_API_KEY` (opcjonalnie `OPENAI_API_KEY`). Bez niego aplikacja nie udaje AI: tutor zwraca kontrolowany błąd, a RAG schodzi na tryb słowny.
 - [x] Naprawiony błąd RPC → **008_finish_exam_attempt_guard.sql** wgrana; brak dopasowania zwraca `null` zamiast wyjątku
 - [x] Naprawione 3 błędy w `supabase/seed.sql`: nieistniejąca kolumna `subjects.published`, join lekcji po `zadania-maturalne` (blokował wszystkie pytania) oraz kolizja slugów lekcji między poziomami
@@ -81,7 +83,7 @@ Porządki i testy:
 3. Uruchom `pnpm content:import` (publikacja) i `pnpm qa:content` (weryfikacja).
 4. Dopisz dział do listy w `lib/learning/curriculum.ts` (nowe działy spoza 16+5) — treść autorska automatycznie zastępuje szablon.
 
-**Faza 3 — Egzaminy klasy produkcyjnej — ZREALIZOWANA (kod) / wymaga migracji 009**
+**Faza 3 — Egzaminy klasy produkcyjnej — ZREALIZOWANA (migracja 009 wgrana; poprawki pętli błędów i null-guard: migracja 011)**
 
 - [x] Punktacja cząstkowa: `exam_answers.points_earned`, `graded_by`, `is_correct` + RPC `finish_exam_attempt`/`regrade_exam_attempt` z migracji **009** (`exam_answer_points` respektuje punkty zapisane przez aplikację, ograniczone do maksimum)
 - [x] Sprawdzanie zamiast porównania tekstu: `normalizeAnswer` + tolerancja liczbowa w `lib/learning/practice.ts` (liczby, ułamki, przecinek dziesiętny, LaTeX) — egzamin używa tego samego modułu
@@ -90,7 +92,7 @@ Porządki i testy:
 - [x] Realizm egzaminu: `components/exam-toolbar.tsx` (tablice wzorów CKE + kalkulator) i `lib/calculator.ts` (`pnpm qa:calc`)
 - [x] Egzamin zasila ten sam model umiejętności co trening (zdarzenia `learning_events` per umiejętność)
 
-**Faza 4 — AI, które naprawdę uczy — ZREALIZOWANA (kod) / wymaga klucza AI + migracji 010**
+**Faza 4 — AI, które naprawdę uczy — ZREALIZOWANA (migracja 010 wgrana; wymaga jeszcze klucza `AI_GATEWAY_API_KEY`)**
 
 - [x] **RAG na embeddingach**: `lib/ai/embeddings.ts` (`openai/text-embedding-3-small`, 1536 wymiarów przez `gateway.embeddingModel`), wyszukiwanie przez RPC `match_knowledge_chunks` (pgvector + HNSW z migracji 006), z jawnym zejściem na tryb słowny, gdy brakuje klucza albo wektorów; wynik niesie `matchType`
 - [x] Tryb słowny naprawiony: prawdziwe wyszukiwanie w bazie (ILIKE po słowach zapytania) zamiast próbki pierwszych kilkunastu wierszy
@@ -195,7 +197,7 @@ Priorytet: bez tego dalsza rozbudowa pogarsza stan.
 
 **Deliverable:** egzamin 1:1 z realnym doświadczeniem + konkretny feedback.
 
-### Faza 4 — AI, które naprawdę uczy (2–3 tyg.) — **ZREALIZOWANA** (wymaga `AI_GATEWAY_API_KEY` i migracji 010)
+### Faza 4 — AI, które naprawdę uczy (2–3 tyg.) — **ZREALIZOWANA** (migracja 010 wgrana; wymaga jeszcze klucza `AI_GATEWAY_API_KEY`)
 
 1. **RAG na embeddingach.** Zamiast keyword-match: `pgvector` w Supabase, kolumna `embedding vector(1536)` w `knowledge_chunks`, ingest z `text-embedding-3-small`, `match_knowledge` jako RPC. Ingest lekcji/zadań rozwiązań (obecnie `ingest.ts` nie jest wołany nigdzie w UI — dopiąć po publikacji lekcji).
 2. **Tutor z kontekstem zadania.** Z poziomu solvera: „wyjaśnij krok”, „analizuj mój tok myślenia” (mode już są). Tutor widzi treść zadania, odpowiedź ucznia i matrycę punktacji. Zasada: nie podaje gotowego rozwiązania w trybie `hint`/`guided`.
@@ -205,8 +207,15 @@ Priorytet: bez tego dalsza rozbudowa pogarsza stan.
 
 **Deliverable:** tutor w kontekście lekcji/zadania z RAG i limitem, generowanie zadań z rozwiązaniami.
 
-### Faza 5 — Doświadczenie użytkownika (2–3 tyg.)
+### Faza 5 — Doświadczenie użytkownika (2–3 tyg.) — **W TOKU: wykresy i rysunki w nauce i zadaniach (gotowe)**
 
+0. **Wykresy i rysunki w treści — ZROBIONE.** Silnik figur SVG bez nowych zależności:
+   - `lib/figures/spec.ts` — deklaratywne specyfikacje (`plot` / `geometry` / `numberline`) + bezpieczne parsowanie z JSONB (clamp liczb, limity elementów, odrzucanie śmieci),
+   - `lib/figures/evaluate.ts` — kompilator wyrażeń w zmiennej `x` (domyślne mnożenie `2x`/`3(x+1)`/`xsin(x)`, stałe `pi`/`e`, NaN przerywa krzywą na asymptotach),
+   - `components/figure.tsx` — renderer SVG: siatka i osie ze strzałkami, krzywe z łamaniem na asymptotach, punkty (kółko/kwadrat/krzyżyk), linie pomocnicze, obszary między krzywymi, trójkąty z kątami α/β/γ i kątami prostymi, okręgi, łuki, osie liczbowe z przedziałami i kropkami,
+   - podpięcie: bloki lekcji (`ContentBlock.figure`, typ `diagram` → `lesson_blocks.content.figure`), zadania (`ContentTask.figure` → `validation_metadata.figure`) w sesji treningu, banku, błędach, arkuszu i raporcie egzaminacyjnym,
+   - treść: kwadratowa (3 wykresy paraboli), funkcje (odczyt z wykresu, nachylenie linii), planimetria (trójkąt z kątami, podobieństwo), trygonometria (trójkąt prostokątny), geometria (odcinek + środek, odległość od prostej), statystyka (mediana na osi); zadania `kw-01`, `tg-01`, `rr-15`,
+   - test `pnpm qa:figures` (parser + walidacja + figury w treści); `qa:content` 100% po imporcie.
 1. **Mobile-first + PWA.** Egzamin i powtórki na telefonie (kluczowa zmiana dla maturzystów). Manifest, ikony, offline shell dla lekcji (service worker), instalowalność.
 2. **LaTeX w edycji odpowiedzi.** Prosty edytor wzorów (pasek symboli √, ², π, ułamki) w textarea/solverze — na mobile krytyczny.
 3. **Osiągnięcia i gamifikacja.** Odkleić `user_achievements` z bazy (tabela jest): reguły w `lib/learning/achievements.ts` + event `learning_events` → przyznawanie; toast + animacja; poprawić liczenie streak ( dni aktywności, nie liczba sesji).

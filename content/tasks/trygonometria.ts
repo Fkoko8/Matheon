@@ -19,6 +19,19 @@ export const trygonometriaTasks: ContentTask[] = [
     hints: ['Sinus kąta ostrego to stosunek przyprostokątnej naprzeciw kąta do przeciwprostokątnej.', 'Podstaw: $\\sin \\alpha = \\frac{6}{10}$ i skróć ułamek.'],
     solution: 'Z definicji: $\\sin \\alpha = \\frac{6}{10} = \\frac{3}{5}$.',
     steps: ['Wskaż bok naprzeciw kąta ($6$) i przeciwprostokątną ($10$).', 'Podstaw do definicji: $\\sin \\alpha = \\frac{6}{10}$.', 'Skróć: $\\frac{3}{5}$.'],
+    figure: {
+      kind: 'geometry',
+      caption: 'Trójkąt prostokątny: bok naprzeciw kąta $\\alpha$ ma długość $6$, przeciwprostokątna — $10$.',
+      elements: [
+        { type: 'polyline', points: [[0, 0], [8, 0], [0, 6]], closed: true, color: 'violet' },
+        { type: 'rightAngle', vertex: [0, 0], dirDeg: 0, size: 0.7 },
+        { type: 'namedPoint', id: 'A', at: [8, 0] },
+        { type: 'namedPoint', id: 'B', at: [0, 6] },
+        { type: 'namedPoint', id: 'C', at: [0, 0] },
+        { type: 'angle', vertex: [8, 0], fromDeg: 143, toDeg: 180, r: 1.5, color: 'amber', label: 'α' },
+      ],
+      labels: { A: 'A', B: 'B', C: 'C' },
+    },
   },
   {
     id: 'tg-02',

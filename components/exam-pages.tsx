@@ -9,6 +9,7 @@
  */
 import { useCallback, useEffect, useState } from 'react'
 import { ChevronLeft, ChevronRight, Clock3, Flag, Loader2, Save, Search } from 'lucide-react'
+import { FigureInline } from '@/components/figure'
 import {
   finishExam,
   getAttempt,
@@ -312,6 +313,7 @@ export function ExamModePage({ attemptId, exit }: { attemptId: string; exit: () 
 
           <article className="rounded-3xl border border-white/[0.08] bg-white/[0.025] p-6 md:p-10">
             <p className="text-lg leading-8 text-slate-100"><MathText>{question.questionText}</MathText></p>
+            {question.figure != null && <FigureInline spec={question.figure} />}
             <textarea
               value={answers[question.questionId]?.answer ?? ''}
               onChange={(event) => setAnswer(event.target.value)}

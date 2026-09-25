@@ -1,0 +1,80 @@
+name: CI
+
+on:
+  push:
+    branches: [master, main]
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      run_db_qa:
+        description: Uruchom testy QA wymagające bazy Supabase (wymaga migracji 009–011)
+        type: boolean
+        default: false
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    name: Typy, testy jednostkowe, QA bez bazy
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Instalacja zależności
+        run: pnpm install --frozen-lockfile
+
+      - name: Typy
+        run: pnpm typecheck
+
+      - name: Testy jednostkowe
+        run: pnpm test
+
+      - name: Skrypty QA bez dostępu do bazy
+        run: |
+          # Skrypty QA ładują konfigurację przez --env-file=.env.
+          [ -f .env ] || touch .env
+          pnpm qa:figures
+          pnpm qa:calc
+
+  db-qa:
+    name: QA z bazą Supabase (ręczne uruchomienie)
+    if: github.event_name == 'workflow_dispatch' && inputs.run_db_qa
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Instalacja zależności
+        run: pnpm install --frozen-lockfile
+
+      - name: Konfiguracja środowiska z sekretów
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY }}
+          SERVICE_ROLE: ${{ secrets.SERVICE_ROLE }}
+          AI_GATEWAY_API_KEY: ${{ secrets.AI_GATEWAY_API_KEY }}
+        run: |
+          cat > .env <<EOF
+          NEXT_PUBLIC_SUPABASE_URL=$NEXT_PUBLIC_SUPABASE_URL
+          NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=$NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
+          SERVICE_ROLE=$SERVICE_ROLE
+          AI_GATEWAY_API_KEY=$AI_GATEWAY_API_KEY
+          EOF
+
+      - name: Pełny zestaw QA
+        run: pnpm qa:full

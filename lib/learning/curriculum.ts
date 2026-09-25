@@ -27,6 +27,8 @@ export interface CurriculumBlock {
   title?: string
   body: string
   formula?: string
+  /** Rysunek do bloku (wykres/figura/oś) — specyfikacja w `lib/figures/spec.ts`. */
+  figure?: unknown
 }
 
 export interface CurriculumLesson {
@@ -185,6 +187,7 @@ function applyAuthoredContent(topic: CurriculumTopic): CurriculumTopic {
         title: block.title,
         body: block.body,
         formula: block.formula,
+        figure: block.figure,
       })),
     })),
   }
