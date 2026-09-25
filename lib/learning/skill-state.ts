@@ -77,17 +77,25 @@ export async function loadTopicSkillSlugs(supabase: AnyClient): Promise<Map<stri
   return result
 }
 
+/** Jedna odpowiedź ucznia z dziennika zdarzeń — surowy materiał dla mastery i wykresów. */
+export interface AnswerHistoryEntry {
+  skillId: string
+  grade: number
+  evidence: AnswerEvidence
+  /** Czas zdarzenia (ISO, rosnąco w obrębie zwróconej listy). */
+  at: string
+}
+
 /**
- * Stan każdej umiejętności ucznia — odtworzony z dziennika zdarzeń.
- * Zwraca mapę `skillId → stan` (tylko umiejętności z co najmniej jedną odpowiedzią).
+ * Pełna historia odpowiedzi ucznia, posortowana rosnąco po czasie.
+ * Jedno pobranie obsługuje wszystkie pochodne widoki: stan umiejętności, trend mastery
+ * i aktywność dzienną — dzięki temu dashboard nie mnoży zapytań do `learning_events`.
  */
-export async function loadSkillStates(userId: string, supabase: AnyClient): Promise<Map<string, SkillReviewState>> {
-  const states = new Map<string, SkillReviewState>()
-  if (!supabase || !userId) return states
+export async function loadAnswerHistory(userId: string, supabase: AnyClient): Promise<AnswerHistoryEntry[]> {
+  const entries: AnswerHistoryEntry[] = []
+  if (!supabase || !userId) return entries
 
-  const history = new Map<string, Array<{ grade: number; evidence: AnswerEvidence; at: string }>>()
   let offset = 0
-
   while (offset < MAX_EVENTS) {
     const { data, error } = await supabase
       .from('learning_events')
@@ -101,7 +109,6 @@ export async function loadSkillStates(userId: string, supabase: AnyClient): Prom
     if (error || !data?.length) break
 
     for (const row of data) {
-      const skillId = String(row.skill_id)
       const metadata = (row.metadata ?? {}) as Record<string, unknown>
       const evidence: AnswerEvidence = {
         isCorrect: Boolean(metadata.isCorrect),
@@ -109,17 +116,38 @@ export async function loadSkillStates(userId: string, supabase: AnyClient): Prom
         solutionViewed: Boolean(metadata.solutionViewed),
         timeSeconds: Number(metadata.timeSeconds ?? 0),
       }
-      const entry = { grade: Number(metadata.grade ?? (evidence.isCorrect ? 4 : 1)), evidence, at: String(row.created_at) }
-      const list = history.get(skillId) ?? []
-      list.push(entry)
-      history.set(skillId, list)
+      entries.push({
+        skillId: String(row.skill_id),
+        grade: Number(metadata.grade ?? (evidence.isCorrect ? 4 : 1)),
+        evidence,
+        at: String(row.created_at),
+      })
     }
 
     if (data.length < EVENT_PAGE) break
     offset += EVENT_PAGE
   }
 
-  for (const [skillId, entries] of history) states.set(skillId, replayState(skillId, entries))
+  return entries
+}
+
+/**
+ * Stan każdej umiejętności ucznia — odtworzony z dziennika zdarzeń.
+ * Zwraca mapę `skillId → stan` (tylko umiejętności z co najmniej jedną odpowiedzią).
+ */
+export async function loadSkillStates(userId: string, supabase: AnyClient): Promise<Map<string, SkillReviewState>> {
+  const states = new Map<string, SkillReviewState>()
+  const entries = await loadAnswerHistory(userId, supabase)
+  if (!entries.length) return states
+
+  const history = new Map<string, Array<{ grade: number; evidence: AnswerEvidence; at: string }>>()
+  for (const entry of entries) {
+    const list = history.get(entry.skillId) ?? []
+    list.push({ grade: entry.grade, evidence: entry.evidence, at: entry.at })
+    history.set(entry.skillId, list)
+  }
+
+  for (const [skillId, skillHistory] of history) states.set(skillId, replayState(skillId, skillHistory))
   return states
 }
 

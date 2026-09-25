@@ -11,7 +11,20 @@ export const wymierne: ContentTopic = {
     ] },
     { slug: 'wymierne-asymptoty', title: 'Asymptoty i interpretacja wykresu', durationMinutes: 25, difficulty: 4, requirements: ['IV.7'], objectives: ['Wyznaczasz asymptoty poziome i pionowe', 'Opisujesz zachowanie funkcji'], skills: [{ slug: 'wymierne-asymptoty', name: 'Asymptoty', description: 'Wyznacza asymptoty funkcji wymiernej.', level: 'extended' }], blocks: [
       { type: 'formula', title: 'Asymptoty', body: 'Gdy stopień licznika jest mniejszy niż stopień mianownika, asymptotą poziomą jest $y=0$.', formula: '\\frac{P(x)}{Q(x)}\\to 0 \\quad (|x|\\to\\infty)' },
-      { type: 'example', title: 'Asymptota pionowa', body: 'Dla $f(x)=\\frac{1}{x-3}$ mianownik zeruje się dla $x=3$, więc $x=3$ jest asymptotą pionową. Funkcja nigdy nie przyjmuje wartości $0$ po skróceniu, więc nie ma miejsca zerowego.' },
+      { type: 'example', title: 'Asymptota pionowa', figure: {
+        kind: 'plot',
+        xMin: -3,
+        xMax: 9,
+        yMin: -5,
+        yMax: 5,
+        caption: 'Wykres f(x) = 1/(x−3): asymptota pionowa x = 3 (linia przerywana) i pozioma y = 0; punkt (4, 1) należy do wykresu.',
+        curves: [{ expr: '1/(x-3)', label: 'f(x) = 1/(x−3)', color: 'violet' }],
+        guides: [
+          { orientation: 'vertical', value: 3, label: 'x = 3', dashed: true },
+          { orientation: 'horizontal', value: 0, label: 'y = 0', dashed: true },
+        ],
+        points: [{ x: 4, y: 1, label: '(4, 1)', color: 'amber' }],
+      }, body: 'Dla $f(x)=\\frac{1}{x-3}$ mianownik zeruje się dla $x=3$, więc $x=3$ jest asymptotą pionową. Funkcja nigdy nie przyjmuje wartości $0$ po skróceniu, więc nie ma miejsca zerowego.' },
       { type: 'tip', title: 'Kontrola', body: 'Przy $x$ dążącym do pierwiastka mianownika sprawdź znak licznika z jednej i drugiej strony — to pomaga narysować gałęzie.' },
       { type: 'summary', title: 'Co zapamiętać', body: 'Asymptota pionowa to pierwiastek mianownika; pozioma $y=0$ występuje, gdy stopień licznika jest mniejszy niż mianownika.' },
     ] },

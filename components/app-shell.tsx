@@ -1,12 +1,13 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import { BarChart3, BookOpen, CalendarDays, ChevronRight, FileText, Flame, GitBranch, LayoutDashboard, Menu, PencilLine, RefreshCw, Search, Settings, Sparkles, Target, X } from 'lucide-react'
 import { navItems } from '@/lib/navigation'
 import { ProfileMenu, SearchOverlay } from '@/components/global-experiences'
 import { initialsOf, useProfile } from '@/hooks/use-profile'
+import { useOnboardingGate } from '@/hooks/use-onboarding'
 
 const iconMap = { LayoutDashboard, BookOpen, PencilLine, FileText, RefreshCw, CalendarDays, Sparkles, GitBranch, BarChart3, Target }
 
@@ -29,7 +30,26 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   const [searchOpen, setSearchOpen] = useState(false)
   const [profileOpen, setProfileOpen] = useState(false)
   const pathname = usePathname()
+  const router = useRouter()
   const { profile, user } = useProfile()
+  const { checking: onboardingCheck, needsOnboarding } = useOnboardingGate()
+
+  // Pierwszy start: uczeń bez planu nauki przechodzi kreator, zanim zobaczy workspace.
+  useEffect(() => {
+    if (!onboardingCheck && needsOnboarding) router.replace('/onboarding')
+  }, [onboardingCheck, needsOnboarding, router])
+
+  // ⌘K / Ctrl+K otwiera globalne wyszukiwanie z każdego ekranu workspace'u.
+  useEffect(() => {
+    const onKeyDown = (event: KeyboardEvent) => {
+      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'k') {
+        event.preventDefault()
+        setSearchOpen((value) => !value)
+      }
+    }
+    window.addEventListener('keydown', onKeyDown)
+    return () => window.removeEventListener('keydown', onKeyDown)
+  }, [])
   const name = profile?.displayName ?? user?.email?.split('@')[0] ?? 'Uczeń'
   const initials = initialsOf(name)
   const streak = profile?.streak ?? 0
@@ -85,7 +105,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
         {children}
       </div>
 
-      <nav className="fixed inset-x-4 bottom-4 z-30 flex justify-around rounded-2xl border border-white/[0.1] bg-[#15151e]/95 p-2 shadow-2xl backdrop-blur lg:hidden">
+      <nav className="fixed inset-x-4 bottom-[max(1rem,env(safe-area-inset-bottom))] z-30 flex justify-around rounded-2xl border border-white/[0.1] bg-[#15151e]/95 p-2 shadow-2xl backdrop-blur lg:hidden">
         {navItems.slice(0, 5).map((item) => {
           const Icon = iconMap[item.icon as keyof typeof iconMap] ?? LayoutDashboard
           const active = isActive(pathname, item.href)

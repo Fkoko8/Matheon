@@ -29,6 +29,22 @@ export const ciagi: ContentTopic = {
         {
           type: 'formula',
           title: 'Ciąg zadany wzorem ogólnym',
+          figure: {
+            kind: 'plot',
+            xMin: 0,
+            xMax: 6,
+            yMin: 0,
+            yMax: 13,
+            caption: 'Wyrazy ciągu a_n = 2n + 1 jako punkty (n, a_n). Linia przerywana pokazuje trend — ciąg arytmetyczny o różnicy 2.',
+            curves: [{ expr: '2x+1', label: 'trend: 2n + 1', color: 'slate', dashed: true }],
+            points: [
+              { x: 1, y: 3, label: 'a₁ = 3', color: 'violet' },
+              { x: 2, y: 5, label: 'a₂ = 5', color: 'violet' },
+              { x: 3, y: 7, label: 'a₃ = 7', color: 'violet' },
+              { x: 4, y: 9, label: 'a₄ = 9', color: 'violet' },
+              { x: 5, y: 11, label: 'a₅ = 11', color: 'violet' },
+            ],
+          },
           body: 'Wyraz ogólny to funkcja numeru: podstawiasz $n = 1, 2, 3, \\ldots$ i otrzymujesz kolejne wyrazy.',
           formula: 'a_n = n^{2} + 3 \\quad \\Rightarrow \\quad a_1 = 4, \\; a_2 = 7, \\; a_3 = 12',
         },

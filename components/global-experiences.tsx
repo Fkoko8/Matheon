@@ -1,35 +1,51 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { Award, BarChart3, BookOpen, Bot, Check, ChevronLeft, ChevronRight, Clock3, Command, Download, FileText, Flame, Lock, LogOut, Moon, Search, Settings2, Shield, Sparkles, Target, Trash2, UserRound, X, Zap } from 'lucide-react'
+import { Award, BarChart3, BookOpen, Check, ChevronLeft, ChevronRight, Command, Download, FileText, Flame, Loader2, Lock, LogOut, Moon, PencilLine, Search, Settings2, Shield, Sparkles, Target, Trash2, UserRound, X, Zap } from 'lucide-react'
 import { signOut } from '@/lib/auth'
 import { initialsOf, useProfile } from '@/hooks/use-profile'
+import { loadSearchHits, matchHits, SEARCH_KIND_LABEL, type SearchHit, type SearchHitKind } from '@/lib/search'
 
-const searchItems = [
-  { title: 'Funkcje logarytmiczne', category: 'Lekcje', meta: 'Funkcje · 18 min', href: '/learn/lesson/funkcje/funkcje-fundamenty', icon: BookOpen },
-  { title: 'Funkcje', category: 'Tematy', meta: 'Program podstawowy', href: '/learn/topic/funkcje', icon: Target },
-  { title: 'Równanie logarytmiczne', category: 'Zadania', meta: '3 pkt · średnie', href: '/tasks', icon: FileText },
-  { title: 'Matura rozszerzona 2026', category: 'Arkusze', meta: '15 zadań · 180 min', href: '/exams', icon: FileText },
-  { title: 'Geometria analityczna', category: 'Twoje błędy', meta: '4 zadania do powtórki', href: '/review', icon: Clock3 },
-  { title: 'Plan tygodnia', category: 'Plan nauki', meta: '6 aktywności', href: '/plan', icon: Target },
-  { title: 'Sesja z AI Tutorem', category: 'AI conversations', meta: 'Wczoraj · 12 wiadomości', href: '/ai', icon: Bot },
-]
+const KIND_ICON: Record<SearchHitKind, typeof BookOpen> = { topic: Target, lesson: BookOpen, task: PencilLine, exam: FileText }
+
+/** Szybkie zapytania startowe — wszystkie wskazują realne działy z programu. */
+const QUICK_QUERIES = ['Logarytmy', 'Pochodne', 'Geometria analityczna']
 
 export function SearchOverlay({ open, close }: { open: boolean; close: () => void }) {
   const router = useRouter()
   const [query, setQuery] = useState('')
   const [active, setActive] = useState(0)
-  const results = useMemo(() => searchItems.filter((item) => `${item.title} ${item.category} ${item.meta}`.toLowerCase().includes(query.toLowerCase())), [query])
+  const [hits, setHits] = useState<SearchHit[] | null>(null)
+  const [loading, setLoading] = useState(false)
+
+  // Indeks pobieramy raz, przy pierwszym otwarciu — dalej wyszukiwanie działa lokalnie.
+  useEffect(() => {
+    if (!open || hits !== null) return
+    let mounted = true
+    setLoading(true)
+    void loadSearchHits().then((result) => {
+      if (!mounted) return
+      setHits(result)
+      setLoading(false)
+    })
+    return () => { mounted = false }
+  }, [open, hits])
+
+  const results = useMemo(() => matchHits(hits ?? [], query), [hits, query])
   if (!open) return null
+
   const go = (href: string) => { close(); setQuery(''); router.push(href) }
+  const move = (delta: number) => setActive((value) => Math.min(Math.max(value + delta, 0), Math.max(results.length - 1, 0)))
+
   return <div className="fixed inset-0 z-50 bg-black/70 p-0 backdrop-blur-sm sm:grid sm:place-items-start sm:p-16" role="dialog" aria-modal="true" aria-label="Wyszukiwanie">
     <div className="flex h-full w-full flex-col overflow-hidden bg-[#11111a] sm:mx-auto sm:h-auto sm:max-h-[690px] sm:max-w-2xl sm:rounded-3xl sm:border sm:border-white/[0.1] sm:shadow-2xl">
-      <div className="flex items-center gap-3 border-b border-white/[0.08] px-5 py-4"><Search className="text-violet-300" size={20} /><input autoFocus value={query} onChange={(e) => { setQuery(e.target.value); setActive(0) }} onKeyDown={(e) => { if (e.key === 'Escape') close(); if (e.key === 'ArrowDown') { e.preventDefault(); setActive(Math.min(active + 1, results.length - 1)) }; if (e.key === 'ArrowUp') { e.preventDefault(); setActive(Math.max(active - 1, 0)) }; if (e.key === 'Enter' && results[active]) go(results[active].href) }} placeholder="Search MATHEON..." className="flex-1 bg-transparent text-base text-white outline-none placeholder:text-slate-600" /><kbd className="hidden rounded-md border border-white/[0.1] px-2 py-1 text-[10px] text-slate-500 sm:block">ESC</kbd><button onClick={close} aria-label="Zamknij wyszukiwanie" className="rounded-lg p-2 text-slate-500 hover:bg-white/[0.06] hover:text-white"><X size={18} /></button></div>
+      <div className="flex items-center gap-3 border-b border-white/[0.08] px-5 py-4"><Search className="text-violet-300" size={20} /><input autoFocus value={query} onChange={(e) => { setQuery(e.target.value); setActive(0) }} onKeyDown={(e) => { if (e.key === 'Escape') close(); if (e.key === 'ArrowDown') { e.preventDefault(); move(1) }; if (e.key === 'ArrowUp') { e.preventDefault(); move(-1) }; if (e.key === 'Enter' && results[active]) go(results[active].href) }} placeholder="Szukaj działu, lekcji, zadania lub arkusza…" className="flex-1 bg-transparent text-base text-white outline-none placeholder:text-slate-600" /><kbd className="hidden rounded-md border border-white/[0.1] px-2 py-1 text-[10px] text-slate-500 sm:block">ESC</kbd><button onClick={close} aria-label="Zamknij wyszukiwanie" className="rounded-lg p-2 text-slate-500 hover:bg-white/[0.06] hover:text-white"><X size={18} /></button></div>
       <div className="overflow-auto p-3">
-        {!query && <><p className="px-3 pb-2 pt-1 text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-500">Ostatnie wyszukiwania</p><div className="mb-5 flex flex-wrap gap-2 px-3">{['Logarytmy', 'Pochodne', 'Geometria analityczna'].map((x) => <button key={x} onClick={() => setQuery(x)} className="rounded-full border border-white/[0.08] px-3 py-2 text-xs text-slate-400 hover:border-violet-400/30 hover:text-white">{x}</button>)}</div></>}
-        {results.length ? <div className="flex flex-col gap-1">{results.map((item, index) => { const Icon = item.icon; return <button key={item.title} onClick={() => go(item.href)} className={`flex items-center gap-3 rounded-2xl px-3 py-3 text-left ${index === active ? 'bg-violet-500/15' : 'hover:bg-white/[0.05]'}`}><span className="grid size-9 shrink-0 place-items-center rounded-xl bg-white/[0.06] text-violet-300"><Icon size={17} /></span><span className="min-w-0 flex-1"><span className="block truncate text-sm font-medium text-white">{item.title}</span><span className="block truncate text-xs text-slate-500">{item.category} · {item.meta}</span></span>{index === active && <kbd className="hidden rounded border border-white/[0.1] px-2 py-1 text-[10px] text-slate-500 sm:block">↵</kbd>}</button> })}</div> : <div className="px-3 py-14 text-center"><Search className="mx-auto text-slate-600" size={28} /><p className="mt-4 text-sm font-medium text-white">Nothing found</p><p className="mt-1 text-xs text-slate-500">Try searching for a topic, lesson or task.</p></div>}
+        {!query && <><p className="px-3 pb-2 pt-1 text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-500">Zacznij od</p><div className="mb-5 flex flex-wrap gap-2 px-3">{QUICK_QUERIES.map((x) => <button key={x} onClick={() => setQuery(x)} className="rounded-full border border-white/[0.08] px-3 py-2 text-xs text-slate-400 hover:border-violet-400/30 hover:text-white">{x}</button>)}</div>{hits && <p className="px-3 pb-3 text-[11px] text-slate-600">W indeksie: {hits.length} pozycji (program, bank zadań, arkusze).</p>}</>}
+        {loading && !hits && <div className="flex items-center gap-3 px-3 py-14 text-sm text-slate-500"><Loader2 className="animate-spin" size={16} /> Buduję indeks wyszukiwania…</div>}
+        {hits && query && (results.length ? <><p className="px-3 pb-2 text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-500">{results.length} wyników</p><div className="flex flex-col gap-1">{results.map((item, index) => { const Icon = KIND_ICON[item.kind]; return <button key={item.id} onClick={() => go(item.href)} className={`flex items-center gap-3 rounded-2xl px-3 py-3 text-left ${index === active ? 'bg-violet-500/15' : 'hover:bg-white/[0.05]'}`}><span className="grid size-9 shrink-0 place-items-center rounded-xl bg-white/[0.06] text-violet-300"><Icon size={17} /></span><span className="min-w-0 flex-1"><span className="block truncate text-sm font-medium text-white">{item.title}</span><span className="block truncate text-xs text-slate-500">{SEARCH_KIND_LABEL[item.kind]} · {item.subtitle}</span></span>{index === active && <kbd className="hidden rounded border border-white/[0.1] px-2 py-1 text-[10px] text-slate-500 sm:block">↵</kbd>}</button> })}</div></> : <div className="px-3 py-14 text-center"><Search className="mx-auto text-slate-600" size={28} /><p className="mt-4 text-sm font-medium text-white">Nic nie znaleziono</p><p className="mt-1 text-xs text-slate-500">Spróbuj innego działu, lekcji lub fragmentu treści zadania.</p></div>)}
       </div>
       <div className="hidden items-center gap-4 border-t border-white/[0.08] px-5 py-3 text-[10px] text-slate-600 sm:flex"><span>↑↓ Nawiguj</span><span>↵ Otwórz</span><span>ESC Zamknij</span><span className="ml-auto flex items-center gap-1"><Command size={12} /> K</span></div>
     </div>

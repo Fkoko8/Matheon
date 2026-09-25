@@ -67,6 +67,20 @@ export const realne: ContentTopic = {
         {
           type: 'example',
           title: 'Przykład — część wspólna',
+          figure: {
+            kind: 'numberline',
+            min: -3,
+            max: 6,
+            step: 1,
+            caption: 'A = (−2, 3] i B = [1, 5), więc część wspólna to [1, 3] — od 1 włącznie do 3 włącznie.',
+            points: [
+              { value: -2, label: 'A: −2 otwarte', color: 'amber', hollow: true },
+              { value: 5, label: 'B: 5 otwarte', color: 'blue', hollow: true },
+              { value: 1, label: '1', color: 'emerald' },
+              { value: 3, label: '3', color: 'emerald' },
+            ],
+            intervals: [{ from: 1, to: 3, color: 'violet', label: 'A ∩ B = [1, 3]' }],
+          },
           body: '$A = (-2, 3]$ oraz $B = [1, 5)$. Na osi widzimy, że wspólny fragment to liczby od $1$ (włącznie) do $3$ (włącznie), czyli $A \\cap B = [1, 3]$.',
         },
         {

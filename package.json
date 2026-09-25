@@ -12,6 +12,7 @@
     "content:embed": "tsx scripts/embed-knowledge.ts",
     "test": "vitest run",
     "test:watch": "vitest",
+    "icons:generate": "node scripts/generate-icons.mjs",
     "qa:auth": "node --env-file=.env scripts/qa-auth-check.mjs",
     "qa:exam": "node --env-file=.env scripts/qa-exam-check.mjs",
     "qa:content": "node --env-file=.env scripts/qa-content-check.mjs",

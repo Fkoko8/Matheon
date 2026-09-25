@@ -1,7 +1,7 @@
 import { NextResponse, type NextRequest } from 'next/server'
 import { updateSession } from '@/lib/supabase/proxy'
 
-const protectedPaths = ['/learn', '/tasks', '/exams', '/review', '/plan', '/ai', '/map', '/stats', '/profile', '/settings', '/generator', '/mistakes']
+const protectedPaths = ['/onboarding', '/learn', '/tasks', '/exams', '/review', '/plan', '/ai', '/map', '/stats', '/profile', '/settings', '/generator', '/mistakes']
 
 function requiresAuth(pathname: string) {
   if (pathname === '/') return true

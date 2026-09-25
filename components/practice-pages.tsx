@@ -9,6 +9,7 @@
  */
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
+import { useSearchParams } from 'next/navigation'
 import { AlertTriangle, ArrowLeft, BarChart3, Check, Clock3, Flame, Loader2, RefreshCw, Sparkles, Target, TrendingUp } from 'lucide-react'
 import { MathText } from '@/components/math-text'
 import { FigureInline } from '@/components/figure'
@@ -23,8 +24,10 @@ import {
   type PracticeMode,
   type PracticeOverview,
 } from '@/lib/learning/practice'
+import { DailyActivityChart, MasteryTrendChart, TopicAccuracyList } from '@/components/stats-charts'
 import { getCurrentUserId } from '@/lib/learning/skill-state'
 import { joinSkillStates, loadSkillCatalog, loadSkillStates, type SkillWithState } from '@/lib/learning/skill-state'
+import { DEFAULT_TREND_DAYS, loadStatsInsights, type StatsInsights } from '@/lib/learning/insights'
 import { WEAK_MASTERY, daysUntilDue, isDue, masteryLabel } from '@/lib/learning/skill-model'
 import { createClient } from '@/lib/supabase/client'
 
@@ -70,9 +73,11 @@ function useSkillOverview() {
  * ------------------------------------------------------------------ */
 
 export function TrainingPage() {
-  const [level, setLevel] = useState<'basic' | 'extended'>('basic')
+  // Globalne wyszukiwanie (⌘K) deep-linkuje do banku: /tasks?level=…&q=…
+  const params = useSearchParams()
+  const [level, setLevel] = useState<'basic' | 'extended'>(() => (params.get('level') === 'extended' ? 'extended' : 'basic'))
   const [topicId, setTopicId] = useState('')
-  const [search, setSearch] = useState('')
+  const [search, setSearch] = useState(() => params.get('q') ?? '')
   const [difficulty, setDifficulty] = useState(0)
   const [bank, setBank] = useState<PracticeBank | null>(null)
   const [loading, setLoading] = useState(true)
@@ -426,10 +431,24 @@ export function MistakesPage() {
 export function StatsPage() {
   const { overview, skills, loading } = useSkillOverview()
   const [bank, setBank] = useState<PracticeBank | null>(null)
+  const [insights, setInsights] = useState<StatsInsights | null>(null)
 
   useEffect(() => {
     let active = true
     loadPracticeBank({ limit: 600 }).then((result) => { if (active) setBank(result) })
+    return () => { active = false }
+  }, [])
+
+  useEffect(() => {
+    let active = true
+    const load = async () => {
+      const supabase = createClient()
+      const userId = await getCurrentUserId(supabase)
+      if (!supabase || !userId) return
+      const result = await loadStatsInsights(userId, supabase)
+      if (active) setInsights(result)
+    }
+    void load()
     return () => { active = false }
   }, [])
 
@@ -473,6 +492,20 @@ export function StatsPage() {
           )
         })}
       </div>
+
+      <section className="mt-6 rounded-2xl border border-white/[0.07] bg-white/[0.025] p-6">
+        <div className="flex flex-wrap items-baseline justify-between gap-2">
+          <h2 className="text-sm font-semibold text-white">Trend mastery</h2>
+          <p className="text-xs text-slate-500">
+            ostatnie {insights ? insights.trend.length : DEFAULT_TREND_DAYS} dni
+            {insights && insights.answersInWindow > 0 ? ` · ${insights.answersInWindow} odpowiedzi` : ''}
+            {insights?.bestDay ? ` · najlepszy dzień: ${insights.bestDay.answers} (${insights.bestDay.date})` : ''}
+          </p>
+        </div>
+        <MasteryTrendChart points={insights?.trend ?? []} />
+        <h3 className="mt-6 text-xs font-semibold uppercase tracking-wider text-slate-500">Aktywność dzienna</h3>
+        <DailyActivityChart points={insights?.trend ?? []} />
+      </section>
 
       <div className="mt-6 grid gap-6 lg:grid-cols-[1.4fr_1fr]">
         <section className="rounded-2xl border border-white/[0.07] bg-white/[0.025] p-6">
@@ -518,6 +551,14 @@ export function StatsPage() {
           </div>
         </section>
       </div>
+
+      <section className="mt-6 rounded-2xl border border-white/[0.07] bg-white/[0.025] p-6">
+        <div className="flex flex-wrap items-baseline justify-between gap-2">
+          <h2 className="text-sm font-semibold text-white">Skuteczność według działów</h2>
+          <p className="text-xs text-slate-500">posortowane od działów wymagających najwięcej pracy</p>
+        </div>
+        <TopicAccuracyList topics={insights?.topics ?? []} limit={10} />
+      </section>
     </main>
   )
 }

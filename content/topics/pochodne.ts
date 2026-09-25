@@ -17,7 +17,19 @@ export const pochodne: ContentTopic = {
     ] },
     { slug: 'pochodne-styczna', title: 'Styczna do wykresu', durationMinutes: 25, difficulty: 4, requirements: ['XII.6'], objectives: ['Wyznaczasz nachylenie stycznej', 'Zapisujesz równanie stycznej'], skills: [{ slug: 'pochodne-styczna', name: 'Styczna', description: 'Wyznacza równanie prostej stycznej do wykresu.', level: 'extended' }], blocks: [
       { type: 'formula', title: 'Równanie stycznej', body: 'Pochodna w punkcie jest współczynnikiem kierunkowym stycznej.', formula: 'y-f(x_0)=f\'(x_0)(x-x_0)' },
-      { type: 'example', title: 'Przykład', body: 'Dla $f(x)=x^2$ w $x_0=1$ mamy $f(1)=1$ i $f\'(1)=2$, więc $y-1=2(x-1)$, czyli $y=2x-1$.' },
+      { type: 'example', title: 'Przykład', figure: {
+        kind: 'plot',
+        xMin: -2.6,
+        xMax: 3.4,
+        yMin: -3.5,
+        yMax: 7,
+        caption: 'Styczna y = 2x − 1 do paraboli y = x² w punkcie P = (1, 1): współczynnik kierunkowy stycznej to f′(1) = 2.',
+        curves: [
+          { expr: 'x^2', label: 'f(x) = x²', color: 'violet' },
+          { expr: '2x-1', label: 'styczna: y = 2x − 1', color: 'emerald', width: 2.5 },
+        ],
+        points: [{ x: 1, y: 1, label: 'P(1, 1)', color: 'amber' }],
+      }, body: 'Dla $f(x)=x^2$ w $x_0=1$ mamy $f(1)=1$ i $f\'(1)=2$, więc $y-1=2(x-1)$, czyli $y=2x-1$.' },
       { type: 'summary', title: 'Schemat', body: 'Oblicz wartość funkcji i pochodnej w punkcie, a następnie podstaw je do równania prostej.' },
     ] },
   ],

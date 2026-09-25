@@ -11,8 +11,8 @@
 - [x] KaTeX: `components/math-text.tsx` + renderowanie LaTeX w tutorze, egzaminach, treningu, generatorze i lekcjach
 - [x] Poprawka serii dni (streak nie rośnie już przy każdej sesji tego samego dnia)
 - [x] Jakość: zdjęte `typescript.ignoreBuildErrors`, dodany skrypt `pnpm typecheck`, strona 404
-- [ ] Onboarding po rejestracji (poziom, data matury, cel, dni nauki)
-- [ ] Testy jednostkowe (vitest) dla mastery / review / planner / walidatora + CI
+- [x] Onboarding po rejestracji (`/onboarding`): poziom, data matury, cel punktowy, dni i czas nauki → `profiles` + pierwszy plan (`lib/learning/onboarding.ts`); bramka „brak aktywnego planu → kreator” (`hooks/use-onboarding.ts` + `components/app-shell.tsx`); opcjonalny quiz diagnostyczny (10 zadań z banku, zasila mastery przed zbudowaniem planu)
+- [x] Testy jednostkowe (vitest, 127 testów) dla mastery/SM-2, planera, figur (parser + spec), kalkulatora, trendu mastery i indeksu wyszukiwania + CI (`.github/workflows/ci.yml`: typecheck, `pnpm test`, QA bez bazy; QA z bazą tylko na `workflow_dispatch` z sekretami)
 - [x] Rate limiting AI przeniesiony z pamięci procesu do Postgresa (`lib/ai/usage.ts`, liczniki na `ai_request_logs` — migracja **010** wgrana, potwierdzona `pnpm qa:ai` 24/24 OK)
 
 ### Stan backendu Supabase (zweryfikowany testem REST/Auth)
@@ -215,13 +215,14 @@ Priorytet: bez tego dalsza rozbudowa pogarsza stan.
    - `components/figure.tsx` — renderer SVG: siatka i osie ze strzałkami, krzywe z łamaniem na asymptotach, punkty (kółko/kwadrat/krzyżyk), linie pomocnicze, obszary między krzywymi, trójkąty z kątami α/β/γ i kątami prostymi, okręgi, łuki, osie liczbowe z przedziałami i kropkami,
    - podpięcie: bloki lekcji (`ContentBlock.figure`, typ `diagram` → `lesson_blocks.content.figure`), zadania (`ContentTask.figure` → `validation_metadata.figure`) w sesji treningu, banku, błędach, arkuszu i raporcie egzaminacyjnym,
    - treść: kwadratowa (3 wykresy paraboli), funkcje (odczyt z wykresu, nachylenie linii), planimetria (trójkąt z kątami, podobieństwo), trygonometria (trójkąt prostokątny), geometria (odcinek + środek, odległość od prostej), statystyka (mediana na osi); zadania `kw-01`, `tg-01`, `rr-15`,
-   - test `pnpm qa:figures` (parser + walidacja + figury w treści); `qa:content` 100% po imporcie.
-1. **Mobile-first + PWA.** Egzamin i powtórki na telefonie (kluczowa zmiana dla maturzystów). Manifest, ikony, offline shell dla lekcji (service worker), instalowalność.
+   - rozszerzenie treści: liczby rzeczywiste (część wspólna przedziałów na osi), ciągi (wyrazy `a_n = 2n+1` jako punkty), wielomiany (wykres z trzema pierwiastkami), funkcje wymierne (`1/(x−3)` z asymptotami), pochodne (styczna do paraboli), stereometria (prostopadłościan w rzucie) — razem 17 figur w 12 działach,
+   - test `pnpm qa:figures` (parser + walidacja + figury w **wszystkich** działach i zadaniach); `qa:content` 100% po imporcie.
+1. **Mobile-first + PWA — ZROBIONE.** `app/manifest.ts` (ikony 192/512 + `maskable`, skróty do treningu i powtórek), ikony generowane `pnpm icons:generate` (`scripts/generate-icons.mjs` — rastrowe PNG bez zależności zewnętrznych), offline shell: `public/sw.js` (nawigacje network-first z fallbackiem `/offline`, cache-first wyłącznie dla `_next/static` i obrazów, zero cache dla `/api/` i danych ucznia) + `app/offline/page.tsx` + `components/pwa-register.tsx` (rejestracja tylko w produkcji); `viewportFit: cover` i dolna nawigacja nad paskiem gestów.
 2. **LaTeX w edycji odpowiedzi.** Prosty edytor wzorów (pasek symboli √, ², π, ułamki) w textarea/solverze — na mobile krytyczny.
 3. **Osiągnięcia i gamifikacja.** Odkleić `user_achievements` z bazy (tabela jest): reguły w `lib/learning/achievements.ts` + event `learning_events` → przyznawanie; toast + animacja; poprawić liczenie streak ( dni aktywności, nie liczba sesji).
-4. **Statystyki z wykresami.** Recharts (albo prosty SVG — spójnie z obecnym stylem): trend mastery, accuracy per dział w czasie, aktywność dzienna, porównanie z progiem docelowym.
+4. **Statystyki z wykresami — ZROBIONE.** Własny SVG w palecie figur (`components/stats-charts.tsx`): trend mastery (`buildMasteryTrend` w `lib/learning/insights.ts` odtwarza stan dzień po dniu z `learning_events`), aktywność dzienna (słupki z tooltipami), skuteczność per dział z `user_progress` (`loadTopicAccuracy`). Bez Recharts — zero nowych zależności.
 5. **Mapa wiedzy (Knowledge Map) na realnych danych.** Obecny graf z mocków → wygenerować z `skills` + mastery; klik = przejście do skillu.
-6. **Search globalny (⌘K).** Filtrowanie lekcji, zadań, arkuszy zamiast obecnego SearchOverlay na mockach.
+6. **Search globalny (⌘K) — ZROBIONE.** Indeks z realnych danych (`lib/search.ts`): działy i lekcje z programu, zadania z banku (`questions`), arkusze (`exams`); dopasowanie bez diakrytyki („rownania” → „Równania”), wymagane wszystkie słowa zapytania; `⌘K`/`Ctrl+K` w shelu, wyniki deep-linkują do lekcji, arkusza i banku (`/tasks?level=…&q=…`).
 
 **Deliverable:** aplikacja, której nie trzeba tłumaczyć — mobile PWA + pełna motywacja.
 

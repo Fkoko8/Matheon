@@ -6,7 +6,20 @@ export const wielomiany: ContentTopic = {
     { slug: 'wielomiany-rozklad', title: 'Rozkład na czynniki', durationMinutes: 30, difficulty: 3, requirements: ['II.4'], objectives: ['Rozkładasz wielomian na czynniki', 'Stosujesz wzory na sumę i różnicę'], skills: [{ slug: 'wielomiany-rozkladanie', name: 'Rozkład na czynniki', description: 'Rozkłada wielomiany metodą grupowania i wzorów.', level: 'extended' }], blocks: [
       { type: 'paragraph', title: 'Cel', body: 'Rozkład upraszcza wyrażenia i jest pierwszym krokiem do rozwiązywania równań. Zaczynaj od wyłonienia wspólnego czynnika, a następnie stosuj wzory.' },
       { type: 'formula', title: 'Najczęstsze wzory', body: 'Wzory skracają rachunki i pomagają rozpoznać czynniki.', formula: 'a^2-b^2=(a-b)(a+b), \\quad a^2+2ab+b^2=(a+b)^2' },
-      { type: 'example', title: 'Przykład', body: '$x^2-9=(x-3)(x+3)$ oraz $x^2+6x+9=(x+3)^2$. W $4x^2-12x+9$ rozpoznajemy kwadrat: $(2x-3)^2$.' },
+      { type: 'example', title: 'Przykład', figure: {
+        kind: 'plot',
+        xMin: -3.4,
+        xMax: 4.2,
+        yMin: -9,
+        yMax: 11,
+        caption: 'W(x) = (x+2)(x−1)(x−3) — trzy czynniki liniowe, więc trzy miejsca zerowe: −2, 1 i 3.',
+        curves: [{ expr: 'x^3-2x^2-5x+6', label: 'W(x) = (x+2)(x−1)(x−3)', color: 'violet' }],
+        points: [
+          { x: -2, y: 0, label: 'x = −2', color: 'emerald' },
+          { x: 1, y: 0, label: 'x = 1', color: 'emerald' },
+          { x: 3, y: 0, label: 'x = 3', color: 'emerald' },
+        ],
+      }, body: '$x^2-9=(x-3)(x+3)$ oraz $x^2+6x+9=(x+3)^2$. W $4x^2-12x+9$ rozpoznajemy kwadrat: $(2x-3)^2$.' },
       { type: 'warning', title: 'Pułapki', body: 'Nie pomyl wzoru $a^2-b^2$ z sumą kwadratów. Przy grupowaniu sprawdź, że każda grupa ma wspólny czynnik.' },
       { type: 'summary', title: 'Schemat', body: 'Wyłóż wspólny czynnik → rozpoznaj różnicę kwadratów lub kwadrat trójmianu → sprawdź iloczyn.' },
     ] },

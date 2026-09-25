@@ -44,7 +44,7 @@ Naprawia 2 znane FAIL-e `qa:examreport`:
 
 **Weryfikacja:** `pnpm exec tsx --env-file=.env scripts/qa-exam-report-check.ts` → musi być 100% OK (dzisiaj: 20 OK / 2 FAIL, oba FAIL dotyczą właśnie tej migracji).
 
-### 3.2. Utrwal ładowanie `.env` w skryptach QA
+### 3.2. Utrwal ładowanie `.env` w skryptach QA — ✅ ZROBIONE (2026-09-25)
 
 Skrypty `tsx` **nie ładują same** `.env` — dzisiaj `pnpm qa:examreport` i `pnpm qa:ai` wyrzucają `Brak konfiguracji` bez ręcznego `--env-file=.env`. Napraw w `package.json`:
 
@@ -72,10 +72,10 @@ Brak go w `.env` (są tylko `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PU
 
 ## 4. Zadania — dokończenie Fazy 0
 
-### 4.1. Onboarding po rejestracji
+### 4.1. Onboarding po rejestracji — ✅ ZROBIONE (2026-09-25, `/onboarding` + `lib/learning/onboarding.ts` + bramka w shelu)
 Kreator po pierwszym logowaniu: zakres (podstawa/rozszerzenie), data matury, cel %, dni nauki, dzienny czas → zapis do `profiles` + start planu. Opcjonalnie: krótki quiz diagnostyczny (10 zadań) wyznaczający poziom startowy. Podepnij pod `lib/learning/planner/*`.
 
-### 4.2. Testy jednostkowe (vitest) + CI
+### 4.2. Testy jednostkowe (vitest) + CI — ✅ ZROBIONE (2026-09-25, 127 testów + `.github/workflows/ci.yml`)
 - Dodaj `vitest` i testy dla czystych modułów: `lib/learning/skill-model.ts` (gradeAnswer, SM-2, decayedMastery), planner (priorytety), `lib/figures/evaluate.ts` + `spec.ts` (parser — przypadki z `scripts/qa-figures-check.ts` można przenieść/rozbić), kalkulator `lib/calculator.ts`.
 - Dodaj GitHub Actions: `pnpm typecheck` + `pnpm test` (+ `pnpm qa:figures` jako minimum bez bazy). Sekrety bazy dawać tylko na workflow_dispatch.
 
@@ -98,12 +98,12 @@ Zadania z arkuszy CKE (licencja CC BY 3.0 PL, wymaga atrybucji): `source_name='C
 
 ## 6. Zadania — Faza 5 (UX)
 
-1. **Mobile-first + PWA** — manifest, ikony, offline shell, egzamin i powtórki na telefonie.
+1. ~~**Mobile-first + PWA**~~ — ✅ ZROBIONE: `app/manifest.ts`, ikony `pnpm icons:generate`, `public/sw.js` + `/offline`, `viewportFit: cover`.
 2. **Edytor wzorów LaTeX w odpowiedziach** — pasek symboli (√, ², π, ułamki) przy textarea/solverze.
 3. **Osiągnięcia** — odkleić `user_achievements` z bazy (tabela istnieje): reguły w `lib/learning/achievements.ts`, wyzwalanie przez `learning_events`, toast + animacja.
-4. **Wykresy w statystykach** — trend mastery, accuracy per dział, aktywność dzienna (Recharts albo własny SVG spójny z `components/figure.tsx`).
-5. **Globalny search ⌘K** — filtrowanie realnych lekcji/zadań/arkuszy (obecny SearchOverlay jest na mockach).
-6. **Wykresy w kolejnych działach** — silnik figur jest gotowy; dodać figury do reszty działów w `content/topics/` (teraz: kwadratowa, funkcje, planimetria, trygonometria, geometria, statystyka, realne).
+4. ~~**Wykresy w statystykach**~~ — ✅ ZROBIONE: `components/stats-charts.tsx` + `lib/learning/insights.ts` (własny SVG, bez Recharts).
+5. ~~**Globalny search ⌘K**~~ — ✅ ZROBIONE: indeks w `lib/search.ts` (program + bank zadań + arkusze), skrót ⌘K/Ctrl+K w shelu.
+6. ~~**Wykresy w kolejnych działach**~~ — ✅ CZĘŚCIOWO (2026-09-25): dodane realne, ciągi, wielomiany, wymierne, pochodne, stereometria (razem 17 figur w 12 działach); `qa:figures` waliduje już wszystkie działy i zadania. Do zrobienia zostały m.in. algebra, równania, kombinatoryka, prawdopodobieństwo i działy rozszerzone (granice, optymalizacja, parametry, dowody).
 
 ---
 

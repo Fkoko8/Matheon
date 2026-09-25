@@ -11,12 +11,7 @@
  */
 import { compileExpression, tryCompileExpression } from '@/lib/figures/evaluate'
 import { parseFigureSpecs, type PlotFigure } from '@/lib/figures/spec'
-import { realneTasks } from '@/content/tasks/realne'
-import { trygonometriaTasks } from '@/content/tasks/trygonometria'
-import { kwadratowaTasks } from '@/content/tasks/kwadratowa'
-import { realne as realneTopic } from '@/content/topics/realne'
-import { kwadratowa as kwadratowaTopic } from '@/content/topics/kwadratowa'
-import { trygonometria as trygonometriaTopic } from '@/content/topics/trygonometria'
+import { authoredTasks, authoredTopics } from '@/content'
 
 let failures = 0
 function check(label: string, ok: boolean, detail = '') {
@@ -68,32 +63,37 @@ function main() {
   check('odrzuca odwrócony zakres', parseFigureSpecs({ kind: 'plot', xMin: 5, xMax: -5, curves: [{ expr: 'x', color: 'blue' }] }).length === 0)
   check('ogranicza absurdalne liczby', parseFigureSpecs({ kind: 'numberline', min: -1e12, max: 5, points: [{ value: 0 }] }).length === 1)
 
-  /* 3. Figury w treści */
-  const topicFigures: Array<[string, unknown[]]> = [
-    ['realne', realneTopic.lessons.flatMap((lesson) => lesson.blocks.map((block) => block.figure))],
-    ['kwadratowa', kwadratowaTopic.lessons.flatMap((lesson) => lesson.blocks.map((block) => block.figure))],
-    ['trygonometria', trygonometriaTopic.lessons.flatMap((lesson) => lesson.blocks.map((block) => block.figure))],
-  ]
-  const taskFigures = [...realneTasks, ...trygonometriaTasks, ...kwadratowaTasks].map((task) => [task.id, task.figure] as const)
+  /* 3. Figury w treści — wszystkie działy i zadania autorskie, nie tylko wybrane */
+  const badExpressions = (figure: unknown): string[] => {
+    const parsed = parseFigureSpecs(figure)
+    if (parsed.length !== 1) return []
+    if (parsed[0].kind === 'plot') return (parsed[0] as PlotFigure).curves.filter((curve) => !tryCompileExpression(curve.expr)).map((curve) => curve.expr)
+    if (parsed[0].kind === 'geometry') return parsed[0].elements.filter((element) => element.type === 'circle' && !(element.r > 0)).map((element) => `r=${(element as { r: number }).r}`)
+    return []
+  }
+
+  const withFigures = authoredTopics.flatMap((topic) =>
+    topic.lessons.flatMap((lesson) =>
+      lesson.blocks.filter((block) => Boolean(block.figure)).map((block) => ({ label: `${topic.slug}/${lesson.slug}`, figure: block.figure })),
+    ),
+  )
 
   let topicCount = 0
-  for (const [topic, figures] of topicFigures) {
-    for (const figure of figures.filter(Boolean)) {
-      topicCount += 1
-      const parsed = parseFigureSpecs(figure)
-      check(`figura w dziale „${topic}” jest poprawna`, parsed.length === 1)
-    }
+  for (const entry of withFigures) {
+    topicCount += 1
+    const parsed = parseFigureSpecs(entry.figure)
+    const badCurves = badExpressions(entry.figure)
+    check(`figura w lekcji „${entry.label}” jest poprawna`, parsed.length === 1 && badCurves.length === 0, badCurves.join(', '))
   }
-  check('działy mają figury', topicCount >= 3, `znaleziono ${topicCount}`)
+  check('działy mają figury', topicCount >= 15, `znaleziono ${topicCount}`)
 
   let taskCount = 0
-  for (const [id, figure] of taskFigures.filter(([, figure]) => Boolean(figure))) {
+  for (const task of authoredTasks) {
+    if (!task.figure) continue
     taskCount += 1
-    const parsed = parseFigureSpecs(figure)
-    const badCurves = parsed.length === 1 && parsed[0].kind === 'plot'
-      ? (parsed[0] as PlotFigure).curves.filter((curve) => !tryCompileExpression(curve.expr)).map((curve) => curve.expr)
-      : []
-    check(`zadanie ${id} ma poprawną figurę`, parsed.length === 1 && badCurves.length === 0, badCurves.join(', '))
+    const parsed = parseFigureSpecs(task.figure)
+    const badCurves = badExpressions(task.figure)
+    check(`zadanie ${task.id} ma poprawną figurę`, parsed.length === 1 && badCurves.length === 0, badCurves.join(', '))
   }
   check('zadania mają figury', taskCount >= 2, `znaleziono ${taskCount}`)
 
