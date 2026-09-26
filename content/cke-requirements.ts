@@ -18,8 +18,8 @@ export const ckeRequirements: CkeRequirement[] = [
   { code: 'I.6', level: 'basic', topicSlug: 'realne', status: 'lesson_ready', title: 'Przedziały', description: 'Zaznacza przedziały na osi liczbowej i wykonuje działania na przedziałach (suma, część wspólna, różnica).', skillSlug: 'realne-przedzialy' },
   { code: 'I.7', level: 'basic', topicSlug: 'realne', status: 'lesson_ready', title: 'Procenty', description: 'Stosuje pojęcie procentu i punktu procentowego, wykonuje obliczenia procentowe oraz stosuje procent składany.', skillSlug: 'realne-procenty' },
   { code: 'I.8', level: 'basic', topicSlug: 'realne', status: 'lesson_ready', title: 'Szacowanie i notacja', description: 'Szacuje wartości, zaokrągla wyniki i posługuje się notacją wykładniczą.', skillSlug: 'realne-oszacowanie' },
-  { code: 'I.9', level: 'extended', topicSlug: 'realne', status: 'planned', title: 'Dowody własności liczb', description: 'Dowodzi nierówności i własności liczb rzeczywistych (podstawy dowodu nie wprost).' },
-  { code: 'I.10', level: 'extended', topicSlug: 'realne', status: 'planned', title: 'Nierówności z wartością bezwzględną', description: 'Rozwiązuje nierówności z wartością bezwzględną i interpretuje wynik na osi.' },
+  { code: 'I.9', level: 'extended', topicSlug: 'realne', status: 'lesson_ready', title: 'Dowody własności liczb', description: 'Dowodzi nierówności i własności liczb rzeczywistych (podstawy dowodu nie wprost).', skillSlug: 'realne-dowody-liczb' },
+  { code: 'I.10', level: 'extended', topicSlug: 'realne', status: 'lesson_ready', title: 'Nierówności z wartością bezwzględną', description: 'Rozwiązuje nierówności z wartością bezwzględną i interpretuje wynik na osi.', skillSlug: 'realne-nierownosci-modul' },
 
   // II. Wyrażenia algebraiczne
   { code: 'II.1', level: 'basic', topicSlug: 'algebra', status: 'lesson_ready', title: 'Działania na wyrażeniach', description: 'Wykonuje działania na wyrażeniach algebraicznych i redukuje wyrazy podobne.', skillSlug: 'algebra-redukcja-wyrazen' },
@@ -37,7 +37,7 @@ export const ckeRequirements: CkeRequirement[] = [
   { code: 'III.4', level: 'basic', topicSlug: 'rownania', status: 'lesson_ready', title: 'Równania wymierne i z modułem', description: 'Rozwiązuje proste równania wymierne oraz równania z wartością bezwzględną.', skillSlug: 'rownania-wymierne' },
   { code: 'III.5', level: 'extended', topicSlug: 'parametry', status: 'lesson_ready', title: 'Parametr w równaniach', description: 'Rozwiązuje równania z parametrem i bada liczbę rozwiązań.', skillSlug: 'parametry-rownania' },
   { code: 'III.6', level: 'extended', topicSlug: 'rownania', status: 'lesson_ready', title: 'Nierówności wielomianowe', description: 'Rozwiązuje nierówności wielomianowe i wymierne z wykorzystaniem siatki znaków.', skillSlug: 'rownania-nierownosci-wielomianowe' },
-  { code: 'III.7', level: 'extended', topicSlug: 'kwadratowa', status: 'lesson_ready', title: 'Wzory Viète’a', description: 'Stosuje związki między pierwiastkami a współczynnikami trójmianu kwadratowego.', skillSlug: 'kwadratowa-delta' },
+  { code: 'III.7', level: 'extended', topicSlug: 'kwadratowa', status: 'lesson_ready', title: 'Wzory Viète’a', description: 'Stosuje związki między pierwiastkami a współczynnikami trójmianu kwadratowego.', skillSlug: 'kwadratowa-viete' },
 
   // IV. Funkcje
   { code: 'IV.1', level: 'basic', topicSlug: 'funkcje', status: 'lesson_ready', title: 'Własności z wykresu', description: 'Odczytuje z wykresu dziedzinę, zbiór wartości, miejsca zerowe i monotoniczność.', skillSlug: 'funkcje-odczyt-wykresu' },
@@ -47,8 +47,8 @@ export const ckeRequirements: CkeRequirement[] = [
   { code: 'IV.5', level: 'basic', topicSlug: 'kwadratowa', status: 'lesson_ready', title: 'Zastosowania funkcji kwadratowej', description: 'Stosuje funkcję kwadratową do rozwiązywania zadań praktycznych i optymalizacyjnych.', skillSlug: 'kwadratowa-optymalizacja' },
   { code: 'IV.6', level: 'basic', topicSlug: 'funkcje', status: 'lesson_ready', title: 'Logarytmy i funkcja wykładnicza', description: 'Posługuje się pojęciem logarytmu i jego własnościami oraz funkcją wykładniczą.', skillSlug: 'funkcje-logarytmy' },
   { code: 'IV.7', level: 'extended', topicSlug: 'wymierne', status: 'lesson_ready', title: 'Funkcja wymierna', description: 'Bada funkcję wymierną, wyznacza asymptoty i miejsca zerowe.', skillSlug: 'wymierne-dziedzina' },
-  { code: 'IV.8', level: 'extended', topicSlug: 'funkcje', status: 'lesson_ready', title: 'Przekształcenia wykresów', description: 'Stosuje przesunięcia, symetrie i powinowactwo do szkicowania wykresów.', skillSlug: 'funkcje-odczyt-wykresu' },
-  { code: 'IV.9', level: 'extended', topicSlug: 'funkcje', status: 'lesson_ready', title: 'Funkcja odwrotna', description: 'Wyznacza funkcję odwrotną i składa funkcje.', skillSlug: 'funkcje-odczyt-wykresu' },
+  { code: 'IV.8', level: 'extended', topicSlug: 'funkcje', status: 'lesson_ready', title: 'Przekształcenia wykresów', description: 'Stosuje przesunięcia, symetrie i powinowactwo do szkicowania wykresów.', skillSlug: 'funkcje-przeksztalcenia' },
+  { code: 'IV.9', level: 'extended', topicSlug: 'funkcje', status: 'lesson_ready', title: 'Funkcja odwrotna', description: 'Wyznacza funkcję odwrotną i składa funkcje.', skillSlug: 'funkcje-odwrotna' },
 
   // V. Ciągi
   { code: 'V.1', level: 'basic', topicSlug: 'ciagi', status: 'lesson_ready', title: 'Pojęcie ciągu', description: 'Wyznacza wyrazy ciągu i wzór ogólny na podstawie opisu.', skillSlug: 'ciagi-pojecie' },
@@ -110,6 +110,6 @@ export const ckeRequirements: CkeRequirement[] = [
   { code: 'D.1', level: 'extended', topicSlug: 'dowody', status: 'lesson_ready', title: 'Indukcja matematyczna', description: 'Stosuje zasadę indukcji matematycznej do dowodzenia twierdzeń.', skillSlug: 'dowody-indukcja' },
   { code: 'D.2', level: 'extended', topicSlug: 'dowody', status: 'lesson_ready', title: 'Dowody nierówności', description: 'Dowodzi nierówności metodą równoważnych przekształceń.', skillSlug: 'dowody-algebraiczne' },
   { code: 'D.3', level: 'basic', topicSlug: 'dowody', status: 'lesson_ready', title: 'Uzasadnianie w zadaniach', description: 'Prowadzi proste rozumowanie i uzasadnia odpowiedź w zadaniach maturalnych.', skillSlug: 'dowody-uzasadnianie' },
-  { code: 'Z.1', level: 'basic', topicSlug: 'zastosowania', status: 'planned', title: 'Matematyka w kontekście', description: 'Rozwiązuje zadania osadzone w kontekście praktycznym i interpretuje wynik.' },
-  { code: 'Z.2', level: 'basic', topicSlug: 'zastosowania', status: 'planned', title: 'Rozumowanie złożone', description: 'Łączy kilka dziedzin matematyki w jednym zadaniu.' },
+  { code: 'Z.1', level: 'basic', topicSlug: 'zastosowania', status: 'lesson_ready', title: 'Matematyka w kontekście', description: 'Rozwiązuje zadania osadzone w kontekście praktycznym i interpretuje wynik.', skillSlug: 'zastosowania-model' },
+  { code: 'Z.2', level: 'basic', topicSlug: 'zastosowania', status: 'lesson_ready', title: 'Rozumowanie złożone', description: 'Łączy kilka dziedzin matematyki w jednym zadaniu.', skillSlug: 'zastosowania-synteza' },
 ]

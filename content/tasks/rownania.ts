@@ -265,7 +265,7 @@ export const rownaniaTasks: ContentTask[] = [
     answer: 'ma dokładnie jedno rozwiązanie: $x = -2$',
     tags: ['wymierne', 'zalozenia'],
     skills: ['rownania-wymierne'],
-    hints: ['Zapisz założenie $x \\neq 2$.', 'Rozłóż licznik: $x^{2} - 4 = (x-2)(x+2)$.'],solution: 'Założenie: $x \\neq 2$. Licznik zeruje się dla $x = 2$ oraz $x = -2$, ale $x = 2$ odrzucamy przez założenie. Zostaje jedno rozwiązanie: $x = -2$.', steps: ['Założenie $x \\neq 2$.', '$x^{2} - 4 = 0$ daje $x = 2$ lub $x = -2$.', 'Odrzucamy $x = 2$ — zostaje $x = -2$.'], rubric: [{ criterion: 'Poprawne założenie', points: 0.5 }, { criterion: 'Rozwiązanie i odrzucenie', points: 0.5 }],
+    hints: ['Zapisz założenie $x \\neq 2$.', 'Rozłóż licznik: $x^{2} - 4 = (x-2)(x+2)$.'],solution: 'Założenie: $x \\neq 2$. Licznik zeruje się dla $x = 2$ oraz $x = -2$, ale $x = 2$ odrzucamy przez założenie. Zostaje jedno rozwiązanie: $x = -2$.',    steps: ['Założenie $x \\neq 2$.', '$x^{2} - 4 = 0$ daje $x = 2$ lub $x = -2$.', 'Odrzucamy $x = 2$ — zostaje $x = -2$.'],
   },
   {
     id: 'ro-17',

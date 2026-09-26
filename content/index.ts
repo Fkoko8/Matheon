@@ -22,6 +22,7 @@ import { granice } from '@/content/topics/granice'
 import { pochodne } from '@/content/topics/pochodne'
 import { optymalizacja } from '@/content/topics/optymalizacja'
 import { dowody } from '@/content/topics/dowody'
+import { zastosowania } from '@/content/topics/zastosowania'
 import { kwadratowaTasks } from '@/content/tasks/kwadratowa'
 import { funkcjeTasks } from '@/content/tasks/funkcje'
 import { ciagiTasks } from '@/content/tasks/ciagi'
@@ -39,13 +40,14 @@ import { graniceTasks } from '@/content/tasks/granice'
 import { pochodneTasks } from '@/content/tasks/pochodne'
 import { optymalizacjaTasks } from '@/content/tasks/optymalizacja'
 import { dowodyTasks } from '@/content/tasks/dowody'
+import { zastosowaniaTasks } from '@/content/tasks/zastosowania'
 import { ckeRequirements } from '@/content/cke-requirements'
 
 /** Wszystkie opracowane działy (autorstwo MATHEON). */
-export const authoredTopics: ContentTopic[] = [realne, algebra, rownania, kwadratowa, funkcje, ciagi, trygonometria, planimetria, geometria, stereometria, kombinatoryka, prawdopodobienstwo, statystyka, wielomiany, wymierne, parametry, granice, pochodne, optymalizacja, dowody]
+export const authoredTopics: ContentTopic[] = [realne, algebra, rownania, kwadratowa, funkcje, ciagi, trygonometria, planimetria, geometria, stereometria, kombinatoryka, prawdopodobienstwo, statystyka, wielomiany, wymierne, parametry, granice, pochodne, optymalizacja, dowody, zastosowania]
 
 /** Wszystkie opracowane zadania MATHEON. */
-export const authoredTasks: ContentTask[] = [...realneTasks, ...algebraTasks, ...rownaniaTasks, ...kwadratowaTasks, ...funkcjeTasks, ...ciagiTasks, ...trygonometriaTasks, ...planimetriaTasks, ...geometriaTasks, ...stereometriaTasks, ...kombinatorykaTasks, ...prawdopodobienstwoTasks, ...statystykaTasks, ...wielomianyTasks, ...wymierneTasks, ...parametryTasks, ...graniceTasks, ...pochodneTasks, ...optymalizacjaTasks, ...dowodyTasks]
+export const authoredTasks: ContentTask[] = [...realneTasks, ...algebraTasks, ...rownaniaTasks, ...kwadratowaTasks, ...funkcjeTasks, ...ciagiTasks, ...trygonometriaTasks, ...planimetriaTasks, ...geometriaTasks, ...stereometriaTasks, ...kombinatorykaTasks, ...prawdopodobienstwoTasks, ...statystykaTasks, ...wielomianyTasks, ...wymierneTasks, ...parametryTasks, ...graniceTasks, ...pochodneTasks, ...optymalizacjaTasks, ...dowodyTasks, ...zastosowaniaTasks]
 
 export const authoredTopicBySlug = new Map(authoredTopics.map((topic) => [topic.slug, topic]))
 export const authoredTaskById = new Map(authoredTasks.map((task) => [task.id, task]))

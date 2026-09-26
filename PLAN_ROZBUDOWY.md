@@ -33,7 +33,7 @@
 - [x] Tabele treści z migracji 007 wypełnione: `skills` = 15, `cke_requirements` = 78
 - [x] Usunięto 256 pytań śmieciowych bez kodu i 6 placeholderowych lekcji; 38 pytań bez kodu pozostawiono, ponieważ są powiązane z `exam_questions` i blokują bezpieczne usunięcie (FK `ON DELETE RESTRICT`)
 
-**Faza 1 — w toku (20 działów, 74 z 78 wymagań o statusie `lesson_ready`)**
+**Faza 1 — w toku (21 działów, 78 z 78 wymagań o statusie `lesson_ready`)**
 
 - [x] Warstwa treści `content/`: typy (`content/types.ts`), mapa wymagań CKE (`content/cke-requirements.ts` — 78 wymagań, 19 zmapowanych na umiejętności), 20 autorskich działów i banków zadań
 - [x] Idempotentny importer `scripts/import-content.ts` (`pnpm content:import`): upsertuje umiejętności po `slug`, wymagania po `code`, lekcje po `slug`, a zadania po `validation_metadata.code` — ponowne uruchomienie aktualizuje treść i **nie usuwa historii odpowiedzi** uczniów
@@ -46,7 +46,10 @@
 - [x] Test treści `pnpm qa:content` — pełna treść, zadania, powiązania, fragmenty wiedzy i render przechodzą; `pnpm qa` kończy się dwoma znanymi FAIL-ami silnika praktyki po zmianie skali katalogu (nie są błędami importu)
 - [ ] Uzupełnić bank autorskich zadań do docelowego progu ≥600 oraz dokończyć pojedynczy dział podstawy; obecnie 259 zadań autorskich
 - [ ] Bank zadań z arkuszy CKE 2015–2026 (licencja CC BY 3.0 PL) z `source_name='CKE'`, rokiem i `cke_requirement_code`
-- [x] 74 z 78 wymagań CKE ma status `lesson_ready` i wskazuje istniejący skill; pozostały 4 wymagania (`I.9`, `I.10`, `Z.1`, `Z.2`) są jawnie odłożone
+- [x] **78 z 78 wymagań CKE ma status `lesson_ready`** i wskazuje istniejący skill — w tym dopisane lekcje `kwadratowa-viete` (III.7), `funkcje-przeksztalcenia`/`funkcje-odwrotna` (IV.8/IV.9), `realne-dowody`/`realne-modul-nierownosci` (I.9/I.10) oraz dział „Zastosowania” (Z.1/Z.2)
+- [x] **Przebudowa sekcji Nauka** — renderer bloków lekcji (`components/learn-lesson-blocks.tsx`), strony działu/lekcji/programu (`learn-*.tsx`), postęp per lekcja (`lib/learning/learning-progress.ts` + `hooks/use-learning-progress.ts`)
+- [x] **Pogłębienie treści** — każda lekcja ma ≥ 6 bloków z pełnym zestawem `formula`/`example`/`warning`/`summary`; działy `wielomiany`, `wymierne`, `parametry`, `granice`, `pochodne`, `optymalizacja`, `dowody` przepisane w bogatym stylu (tabele, wykresy, pułapki maturalne)
+- [x] **Audyty bez bazy:** `pnpm qa:curriculum` (grubość treści, pokrycie umiejętności, spójność referencji, status wymagań) i `pnpm qa:tasks` (format, poprawność zapisu odpowiedzi, zgodność z maturą, pokrycie CKE) — oba 0 błędów twardych
 
 **Faza 2 — Silnik nauki: mastery per umiejętność, SM-2, powtórki, błędy — ZREALIZOWANA**
 

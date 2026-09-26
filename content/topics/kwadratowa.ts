@@ -306,5 +306,87 @@ Gdyby pytano o dokładnie jedno rozwiązanie: $\\Delta = 0$, czyli $m = 4$.`,
         },
       ],
     },
+    {
+      slug: 'kwadratowa-viete',
+      title: 'Wzory Viète’a i wyrażenia symetryczne',
+      durationMinutes: 28,
+      difficulty: 4,
+      requirements: ['III.7'],
+      objectives: [
+        'Zapisujesz sumę i iloczyn pierwiastków trójmianu bez ich wyliczania',
+        'Obliczasz wyrażenia symetryczne (x₁² + x₂², x₁³ + x₂³, 1/x₁ + 1/x₂)',
+        'Wykorzystujesz Viète’a do zadań z parametrem i do odtwarzania równania',
+      ],
+      skills: [
+        { slug: 'kwadratowa-viete', name: 'Wzory Viète’a', description: 'Stosuje zależności między pierwiastkami a współczynnikami trójmianu, także w wyrażeniach symetrycznych i zadaniach z parametrem.', level: 'extended' },
+      ],
+      blocks: [
+        {
+          type: 'paragraph',
+          title: 'Po co Viète, skoro jest delta?',
+          body: 'Delta daje pierwiastki osobno, ale część pytań dotyczy tylko ich **sumy lub iloczynu** — wtedy nie trzeba nic pierwiastkować. Wzory Viète’a to skrót, który na rozszerzeniu pojawia się w zadaniach z parametrem i w dowodach. Uwaga na deltę: wzory działają tylko wtedy, gdy pierwiastki istnieją, więc zawsze sprawdź $\\Delta \\geq 0$ (albo $\\Delta > 0$ dla dwóch różnych).',
+        },
+        {
+          type: 'formula',
+          title: 'Suma i iloczyn pierwiastków',
+          body: 'Dla trójmianu $ax^{2} + bx + c$ o pierwiastkach $x_1, x_2$ zachodzą dwa wzory. Zwróć uwagę na **minus** przy sumie — to najczęstsza pomyłka.',
+          formula: 'x_1 + x_2 = -\\frac{b}{a} \\quad \\text{oraz} \\quad x_1 \\cdot x_2 = \\frac{c}{a}',
+        },
+        {
+          type: 'table',
+          title: 'Wyrażenia symetryczne bez liczenia pierwiastków',
+          body: `| Wyrażenie | Zapis przez $S = x_1 + x_2$ i $P = x_1 x_2$ |
+|---|---|
+| $x_1^{2} + x_2^{2}$ | $S^{2} - 2P$ |
+| $\\frac{1}{x_1} + \\frac{1}{x_2}$ | $\\frac{S}{P}$ |
+| $\\frac{x_1}{x_2} + \\frac{x_2}{x_1}$ | $\\frac{S^{2} - 2P}{P}$ |
+| $(x_1 - x_2)^{2}$ | $S^{2} - 4P$ |
+| $x_1^{3} + x_2^{3}$ | $S^{3} - 3PS$ |`,
+        },
+        {
+          type: 'example',
+          title: 'Przykład — suma i iloczyn od razu',
+          body: `Dany jest trójmian $2x^{2} - 8x + 3$. Porównaj z $ax^{2} + bx + c$: $a = 2$, $b = -8$, $c = 3$.
+
+$$x_1 + x_2 = -\\frac{-8}{2} = 4, \\qquad x_1 x_2 = \\frac{3}{2}.$$
+
+Sprawdź deltę: $\\Delta = 64 - 24 = 40 > 0$, więc pierwiastki rzeczywiście istnieją. Zauważ, że nie musieliśmy ich wyliczać.`,
+        },
+        {
+          type: 'example',
+          title: 'Przykład — wyrażenie symetryczne',
+          body: `Dla $x^{2} - 6x + 4$ oblicz $x_1^{2} + x_2^{2}$.
+
+$S = 6$, $P = 4$, więc $x_1^{2} + x_2^{2} = S^{2} - 2P = 36 - 8 = 28$.
+
+Gdyby zadanie pytało o $\\frac{1}{x_1} + \\frac{1}{x_2}$: to $\\frac{S}{P} = \\frac{6}{4} = \\frac{3}{2}$.`,
+        },
+        {
+          type: 'example',
+          title: 'Przykład — odtworzenie równania',
+          body: 'Jeśli pierwiastki to $3$ i $-5$, to $S = -2$, $P = -15$. Równanie ma postać $x^{2} - Sx + P = 0$, czyli $x^{2} + 2x - 15 = 0$. To najszybszy sposób rozwiązania zadania „ułóż równanie o danych pierwiastkach”.',
+        },
+        {
+          type: 'warning',
+          title: 'Trzy pułapki',
+          body: `• **Znak sumy:** $x_1 + x_2 = -\\frac{b}{a}$, nie $\\frac{b}{a}$. Podstawiaj ze znakiem $b$.
+• **Brak pierwiastków:** wzory Viète’a milczą o $\\Delta$. Zawsze sprawdź, czy $\\Delta \\geq 0$ — inaczej liczysz „pierwiastki” równania, które ich nie ma.
+• **Dzielenie przez $x$:** wyrażenia typu $\\frac{1}{x_1}$ wymagają $x_1 \\neq 0$, czyli $c \\neq 0$.`,
+        },
+        {
+          type: 'tip',
+          title: 'Wskazówka maturalna',
+          body: 'Gdy w zadaniu z parametrem pada „oba pierwiastki są dodatnie”, to układ trzech warunków: $\\Delta \\geq 0$, $x_1 + x_2 > 0$ (czyli $-b/a > 0$) i $x_1 x_2 > 0$ (czyli $c/a > 0$). Zapisz je jako nierówności na współczynnikach — bez wyliczania pierwiastków.',
+        },
+        {
+          type: 'summary',
+          title: 'Co zapamiętać',
+          body: `• $x_1 + x_2 = -\\frac{b}{a}$, $x_1 x_2 = \\frac{c}{a}$ — pod warunkiem $\\Delta \\geq 0$.
+• Wyrażenia symetryczne sprowadzasz do $S$ i $P$ (np. $x_1^{2}+x_2^{2} = S^{2}-2P$).
+• Równanie o danych pierwiastkach: $x^{2} - Sx + P = 0$.
+• Warunki na znak pierwiastków to nierówności na $S$, $P$ i $\\Delta$.`,
+        },
+      ],
+    },
   ],
 }

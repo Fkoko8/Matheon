@@ -1,4 +1,4 @@
-import { authoredTopicBySlug, tasksForTopic } from '@/content'
+import { authoredTopicBySlug, tasksForLesson, tasksForTopic } from '@/content'
 
 export type LearningLevel = 'basic' | 'extended'
 export type BlockType =
@@ -41,6 +41,8 @@ export interface CurriculumLesson {
   blocks: CurriculumBlock[]
   /** Kody wymagań CKE realizowanych w lekcji (tylko dla treści autorskich). */
   requirements?: string[]
+  /** Liczba zadań w banku przypiętych do tej lekcji (0 dla szablonu). */
+  taskCount: number
 }
 
 export interface CurriculumTopic {
@@ -54,6 +56,8 @@ export interface CurriculumTopic {
   authored: boolean
   /** Liczba zadań w banku autorskim dla tego działu. */
   taskCount: number
+  /** Łączny czas lekcji działu w minutach. */
+  durationMinutes: number
 }
 
 /**
@@ -75,6 +79,7 @@ const templateLesson = (
     `Zrozumiesz pojęcie: ${title}`,
     'Rozwiążesz zadania od podstaw do poziomu maturalnego',
   ],
+  taskCount: 0,
   skills: skills.map((name, index) => ({
     slug: `${slug}-${index}`,
     name,
@@ -120,6 +125,7 @@ const templateTopic = (level: LearningLevel, slug: string, title: string, skills
   mastery: 0,
   authored: false,
   taskCount: 0,
+  durationMinutes: 54,
   description: `Kompletny moduł ${title}: teoria, przykłady, praktyka, błędy i test opanowania.`,
   lessons: [
     templateLesson(`${slug}-fundamenty`, `${title} — fundamenty`, skills.slice(0, 3), level, 1),
@@ -174,6 +180,7 @@ function applyAuthoredContent(topic: CurriculumTopic): CurriculumTopic {
     level: authored.level,
     authored: true,
     taskCount: tasksForTopic(topic.slug).length,
+    durationMinutes: authored.lessons.reduce((sum, lesson) => sum + lesson.durationMinutes, 0),
     lessons: authored.lessons.map((lesson) => ({
       slug: lesson.slug,
       title: lesson.title,
@@ -181,6 +188,7 @@ function applyAuthoredContent(topic: CurriculumTopic): CurriculumTopic {
       difficulty: lesson.difficulty,
       objectives: lesson.objectives,
       requirements: lesson.requirements,
+      taskCount: tasksForLesson(lesson.slug).length,
       skills: lesson.skills.map((skill) => ({ ...skill, mastery: 0 })),
       blocks: lesson.blocks.map((block) => ({
         type: block.type,

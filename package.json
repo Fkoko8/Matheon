@@ -20,6 +20,8 @@
     "qa:practice": "tsx --env-file=.env scripts/qa-practice-check.ts",
     "qa:calc": "tsx --env-file=.env scripts/qa-calculator-check.ts",
     "qa:figures": "tsx --env-file=.env scripts/qa-figures-check.ts",
+    "qa:curriculum": "tsx scripts/qa-curriculum-audit.ts",
+    "qa:tasks": "tsx scripts/qa-tasks-audit.ts",
     "qa:ai": "tsx --env-file=.env scripts/qa-ai-check.ts",
     "qa": "pnpm qa:auth && pnpm qa:content && pnpm qa:calc && pnpm qa:exam && pnpm qa:practice",
     "qa:full": "pnpm qa && pnpm qa:examreport && pnpm qa:ai"

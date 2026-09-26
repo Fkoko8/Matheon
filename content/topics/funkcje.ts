@@ -258,5 +258,180 @@ Rozwiąż $3^{2x} = 27$: $27 = 3^{3}$, więc $2x = 3$, $x = 1{,}5$.`,
         },
       ],
     },
+    {
+      slug: 'funkcje-przeksztalcenia',
+      title: 'Przekształcenia wykresów funkcji',
+      durationMinutes: 30,
+      difficulty: 4,
+      requirements: ['IV.8'],
+      objectives: [
+        'Stosujesz przesunięcia wykresu w pionie i w poziomie',
+        'Odbijasz wykres przez symetrię względem osi i środka układu',
+        'Znajdujesz wzór funkcji po przekształceniu i szkicujesz wykres',
+      ],
+      skills: [
+        { slug: 'funkcje-przeksztalcenia', name: 'Przekształcenia wykresów', description: 'Stosuje przesunięcia, symetrie i powinowactwo do szkicowania wykresów i wyznaczania wzorów.', level: 'extended' },
+      ],
+      blocks: [
+        {
+          type: 'paragraph',
+          title: 'Zasada „operacja na wykresie”',
+          body: 'Na rozszerzeniu nie trzeba rysować wykresu od zera — wystarczy przekształcić znany. Każda operacja na wzorze odpowiada konkretnemu ruchowi całego wykresu: dodanie liczby do $f(x)$ przesuwa w pionie, dodanie liczby do $x$ przesuwa w poziomie **w przeciwną stronę**, znak minus przed $f$ odbija w dół, znak minus przy $x$ odbija w lewo.',
+        },
+        {
+          type: 'formula',
+          title: 'Katalog przekształceń',
+          body: 'Dla wykresu funkcji $y = f(x)$ poniższe zmiany wzoru odpowiadają ruchom na płaszczyźnie.',
+          formula: `y = f(x) + q \\;\\uparrow\\; \\text{przesunięcie o } q\\text{ w pionie}\n
+y = f(x - p) \\;\\to\\; \\text{przesunięcie o } p\\text{ w prawo}\n
+y = -f(x) \\;\\text{odbicie przez oś } OX\n
+y = f(-x) \\;\\text{odbicie przez oś } OY`,
+        },
+        {
+          type: 'table',
+          title: 'Ściągawka: co robi każdy zapis',
+          body: `| Zapis | Efekt na wykresie | Przykład z $f(x) = x^{2}$ |
+|---|---|---|
+| $f(x) + 2$ | przesuwa w górę o $2$ | $x^{2} + 2$ |
+| $f(x - 3)$ | przesuwa w prawo o $3$ | $(x-3)^{2}$ |
+| $f(x + 3)$ | przesuwa w lewo o $3$ | $(x+3)^{2}$ |
+| $-f(x)$ | odbija przez oś $OX$ | $-x^{2}$ |
+| $f(-x)$ | odbija przez oś $OY$ | $(-x)^{2} = x^{2}$ |
+| $2f(x)$ | rozciąga w pionie $\\times 2$ | $2x^{2}$ |
+| $f(2x)$ | ściska w poziomie $\\times \\tfrac12$ | $(2x)^{2}$ |`,
+        },
+        {
+          type: 'example',
+          title: 'Przykład — pełne przekształcenie',
+          body: `Narysuj wykres $y = (x-2)^{2} + 1$ wychodząc z $y = x^{2}$.
+
+Krok 1: $y = (x-2)^{2}$ — przesuń w prawo o $2$.
+Krok 2: $y = (x-2)^{2} + 1$ — przesuń w górę o $1$.
+
+Nowy wierzchołek: $(0,0) \\to (2,1)$. Kształt paraboli się nie zmienia (współczynnik przy $x^{2}$ wynosi $1$).`,
+          figure: {
+            caption: 'Wykres $y = x^2$ przesunięty o wektor $[2, 1]$ daje $y = (x-2)^2 + 1$; wierzchołek z $(0,0)$ przechodzi w $(2,1)$.',
+            kind: 'plot',
+            xMin: -3,
+            xMax: 6,
+            yMin: -2,
+            yMax: 8,
+            curves: [
+              { expr: 'x^2', label: 'f(x) = x²', color: 'slate' },
+              { expr: '(x-2)^2+1', label: 'g(x) = (x−2)² + 1', color: 'violet' },
+            ],
+            points: [
+              { x: 0, y: 0, label: '(0, 0)', color: 'slate' },
+              { x: 2, y: 1, label: '(2, 1)', color: 'amber' },
+            ],
+          },
+        },
+        {
+          type: 'example',
+          title: 'Przykład — z wykresu do wzoru',
+          body: 'Wykres funkcji $f$ przesunięto o $3$ jednostki w lewo i $2$ w dół, otrzymując $g(x) = x^{3} - 1$. Jaki wzór ma $f$? Cofamy operacje: $g(x) = f(x + 3) - 2$, więc $f(x) = g(x - 3) + 2 = (x-3)^{3} - 1 + 2 = (x-3)^{3} + 1$.',
+        },
+        {
+          type: 'warning',
+          title: 'Najczęstsze pomyłki',
+          body: `• **Znak przesunięcia poziomego:** $f(x - 3)$ to ruch w **prawo**, a nie w lewo. Myśl o tym, że to $x$ musi być większe, aby trafić w ten sam punkt.
+• **Kolejność:** przy złożeniu $a \\cdot f(x - p) + q$ najpierw działamy wewnątrz nawiasu (poziom), potem mnożenie i przesunięcie pionowe.
+• **Symetria względem początku układu:** to złożenie dwóch odbić, $y = -f(-x)$ — jedno odbicie nie wystarcza.
+• Mylenie $f(2x)$ (ściskanie poziome) z $2f(x)$ (rozciąganie pionowe).`,
+        },
+        {
+          type: 'tip',
+          title: 'Wskazówka maturalna',
+          body: 'W zadaniu zamkniętym, gdy pytają o wykres $y = f(x - 3) + 1$ dla znanej $f$, wyznacz obraz charakterystycznego punktu (wierzchołek, przecięcie z osią) i odszukaj ten punkt na rysunkach — to szybsze niż analiza kształtu. Pamiętaj też, że przesunięcie nie zmienia dziedziny ani zbioru wartości „kształtem”, tylko je odpowiednio przesuwa.',
+        },
+        {
+          type: 'summary',
+          title: 'Co zapamiętać',
+          body: `• $f(x) + q$ — w pionie; $f(x - p)$ — w poziomie (w prawo o $p$).
+• $-f(x)$ — odbicie przez $OX$; $f(-x)$ — przez $OY$.
+• $a\\cdot f(x)$ rozciąga/ściska w pionie; $f(kx)$ działa w poziomie „odwrotnie”.
+• Przesunięcie o wektor $[p, q]$: $y = f(x - p) + q$.`,
+        },
+      ],
+    },
+    {
+      slug: 'funkcje-odwrotna',
+      title: 'Funkcja odwrotna i złożenie funkcji',
+      durationMinutes: 28,
+      difficulty: 4,
+      requirements: ['IV.9'],
+      objectives: [
+        'Sprawdzasz, czy funkcja jest różnowartościowa i czy ma odwrotną',
+        'Wyznaczasz wzór funkcji odwrotnej',
+        'Składasz funkcje i interpretujesz zapis $f(g(x))$',
+      ],
+      skills: [
+        { slug: 'funkcje-odwrotna', name: 'Funkcja odwrotna', description: 'Bada różnowartościowość, wyznacza wzór funkcji odwrotnej i posługuje się wykresem odbitym.', level: 'extended' },
+        { slug: 'funkcje-zlozenie', name: 'Złożenie funkcji', description: 'Oblicza złożenie funkcji i wyznacza jego wzór oraz dziedzinę.', level: 'extended' },
+      ],
+      blocks: [
+        {
+          type: 'paragraph',
+          title: 'Odwracanie relacji',
+          body: 'Funkcja odwrotna cofa działanie funkcji: jeśli $f$ zamienia $x$ na $y$, to $f^{-1}$ zamienia $y$ z powrotem na $x$. Istnieje tylko dla funkcji **różnowartościowych** — takich, którym różne argumenty dają różne wartości. Geometrycznie: wykres $f^{-1}$ to odbicie wykresu $f$ względem prostej $y = x$.',
+        },
+        {
+          type: 'formula',
+          title: 'Definicja funkcji odwrotnej',
+          body: 'Zapis symbolizuje wzajemne znoszenie się obu funkcji. Uwaga: $f^{-1}$ to NIE $\\frac{1}{f}$.',
+          formula: 'f^{-1}\\bigl(f(x)\\bigr) = x \\quad \\text{oraz} \\quad f\\bigl(f^{-1}(y)\\bigr) = y',
+        },
+        {
+          type: 'example',
+          title: 'Przykład — wyznaczanie wzoru',
+          body: `Wyznacz funkcję odwrotną do $f(x) = 2x + 3$.
+
+Napisz $y = 2x + 3$ i rozwiąż względem $x$: $x = \\frac{y - 3}{2}$. Zamień nazwy zmiennych: $f^{-1}(x) = \\frac{x - 3}{2}$.
+
+Sprawdzenie: $f^{-1}(f(1)) = f^{-1}(5) = \\frac{5-3}{2} = 1$ — zgadza się.`,
+        },
+        {
+          type: 'example',
+          title: 'Przykład — złożenie funkcji',
+          body: `Dla $f(x) = x^{2}$ i $g(x) = x + 1$ oblicz $f(g(2))$ oraz $(g \\circ f)(x)$.
+
+$f(g(2)) = f(3) = 9$.
+$(g \\circ f)(x) = g(f(x)) = x^{2} + 1$.
+
+Zauważ, że $f(g(x)) = (x+1)^{2} \\neq x^{2} + 1$ — złożenie nie jest przemienne!`,
+        },
+        {
+          type: 'table',
+          title: 'Jak badać odwracalność',
+          body: `| Funkcja | Różnowartościowa? | Odwrotna? |
+|---|---|---|
+| $y = 2x + 3$ | tak (liniowa, $a \\neq 0$) | tak |
+| $y = x^{2}$ na $\\mathbb{R}$ | nie | nie (trzeba zawęzić dziedzinę, np. $x \\geq 0$) |
+| $y = x^{3}$ | tak | tak |
+| $y = 5$ (stała) | nie | nie |`,
+        },
+        {
+          type: 'warning',
+          title: 'Najczęstsze pomyłki',
+          body: `• **Symbole:** $f^{-1}$ to funkcja odwrotna, a nie $\\frac{1}{f}$. To dwa zupełnie różne pojęcia.
+• **Dziedzina odwrotnej:** dziedzina $f^{-1}$ to zbiór wartości $f$; nie wyznaczaj jej „na oko” z wzoru.
+• **Parabola:** $x^{2}$ na całej osi nie jest różnowartościowa — aby odwrócić, trzeba wskazać przedział (np. $x \\geq 0$).
+• **Kolejność w złożeniu:** $f(g(x))$ i $g(f(x))$ to zwykle różne funkcje.`,
+        },
+        {
+          type: 'tip',
+          title: 'Wskazówka maturalna',
+          body: 'Przepis na odwrotną: (1) zapisz $y = f(x)$, (2) wyznacz $x$ w zależności od $y$, (3) zamień $x$ z $y$ i zapisz $f^{-1}(x)$. Na koniec zawsze podaj, gdzie $f^{-1}$ jest określona — w zadaniach otwartych za sam wzór bez dziedziny można stracić punkt.',
+        },
+        {
+          type: 'summary',
+          title: 'Co zapamiętać',
+          body: `• $f^{-1}$ istnieje tylko dla funkcji różnowartościowej (na wybranym przedziale).
+• Wzór: rozwiąż $y = f(x)$ względem $x$ i zamień zmienne.
+• $f^{-1}\\bigl(f(x)\\bigr) = x$ — to test poprawności.
+• $(g \\circ f)(x) = g(f(x))$; złożenie nie jest przemienne.`,
+        },
+      ],
+    },
   ],
 }

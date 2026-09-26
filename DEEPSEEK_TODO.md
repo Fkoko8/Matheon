@@ -136,9 +136,61 @@ Zadania z arkuszy CKE (licencja CC BY 3.0 PL, wymaga atrybucji): `source_name='C
 
 ```bash
 pnpm typecheck                    # typy
+pnpm test                         # testy jednostkowe (vitest)
+pnpm qa:curriculum                # kompletność działów/lekcji (bez bazy)
+pnpm qa:tasks                     # poprawność banku zadań i zgodność z CKE (bez bazy)
 pnpm qa:figures                   # figury (bez bazy)
 pnpm qa:full                      # pełny zestaw: treść, praktyka, egzaminy, AI (wymaga .env)
 pnpm content:import               # publikacja treści (idempotentna)
 ```
+
+## 10. Audyt banku zadań i zgodności z CKE (2026-09-25)
+
+Nowy skrypt `pnpm qa:tasks` (`scripts/qa-tasks-audit.ts`) sprawdza cały bank zadań pod kątem:
+formatu (identyfikatory, treść, podpowiedzi, kroki, rozwiązanie), **poprawności zapisu odpowiedzi**
+(odpowiedzi zamknięte muszą wystąpić na liście opcji, zadania liczbowe muszą mieć liczbę, matryce
+punktacji muszą sumować się do punktów zadania), **zgodności z maturą** (zadanie zamknięte = 1 pkt,
+trudność 1–5, punkty 1–6, poziom zgodny z wymaganiami działu) oraz pokrycia wymagań CKE zadaniami.
+
+### Naprawione błędy merytoryczne
+
+| Zadanie | Problem | Poprawka |
+| --- | --- | --- |
+| `sr-04` | pole boczne stożka liczone jako $\pi r h$ zamiast $\pi r l$ (wynik $24\pi$ był przypadkowo poprawny) | rozwiązanie i kroki liczą $\pi r l = 15\pi$ |
+| `sr-07` | kąt nachylenia tworzącej do **podstawy** policzony jak kąt z wysokością (odpowiedź $37^{\circ}$) | poprawna odpowiedź $53^{\circ}$ ($\cos\varphi = r/l$), z wyjaśnieniem różnicy |
+| `kb-07` | treść „liczby bez cyfry 0” z odpowiedzią $576$ (dotyczyła innego pytania) | odpowiedź $504$, poprawne rozwiązanie (wyłączenia $648-144$) |
+| `pr-07` | wśród $12$ figur jest $4$ króle, nie $1$ — klucz wskazywał $1/12$ | odpowiedź $1/3$, poprawione uzasadnienie |
+| `op-08` | treść mówiła o sumie boków $10$, rozwiązanie liczyło dla $5$ | treść ujednolicona z rozwiązaniem (suma $5$, maksimum $6{,}25$) |
+
+### Poprawki formatu i zgodności z egzaminem
+
+- **12 zadań z symboliczną odpowiedzią** miało typ `numeric` (np. `3x^2`, `(x-4)(x+4)`, `12/a`, `(-infinity,1)`) — przy braku dokładnego dopasowania uczeń nie mógł dostać punktu. Zmienione na `text`, z wariantami zapisu w `acceptedAnswers` (`po-01/02/03/05/08`, `wm-01/02/06`, `wy-04`, `pa-02/07`, `op-02`, `sr-05`).
+- `op-07` i `wm-03` miały listę wartości/opcje w typie `numeric` — poprawione na `single_choice` i `text`.
+- **8 zadań zamkniętych** było wartych 2 pkt (na maturze zamknięte = 1 pkt): `rr-20`, `cg-14`, `tg-07`, `tg-09`, `tg-13`, `pl-11`, `sr-04`, `sr-08`, `kb-04`, `kb-09`, `pr-07`.
+- `ro-16` (zamknięte) miało matrycę punktacji $0{,}5+0{,}5$ — usunięta, ocenia je sprawdzanie automatyczne.
+- `wy-09` — treść nie pasowała do żadnej z opcji (osobliwość usuwalna) — przeredagowana.
+- `pr-12` — niejednoznaczne „przynajmniej jeden z dwóch serwisów” — doprecyzowane, który serwis jest własny.
+- `kb-02` — treść zawierała odpowiedź w poleceniu — przepisana na czyste zadanie z reguły dodawania.
+- `pl-02` — literówka „któka” → „która”.
+- `gr-05`, `wm-07`, `kb-10` — zadania przypisane do lekcji, która nie deklaruje ich umiejętności.
+- Mapa CKE: wymaganie **D.2** (dowody nierówności) nie było wskazane w żadnej lekcji — dopisane do `dowody-algebraiczne` (treść już je pokrywała).
+
+### Domknięcie braków i pogłębienie lekcji (2026-09-26)
+
+**Nowe lekcje i wymagania CKE (wszystkie 78 wymagań ma teraz status `lesson_ready`):**
+
+1. **III.7 Wzory Viète’a** — nowa lekcja `kwadratowa-viete` (umiejętność `kwadratowa-viete`, zadania `kw-19`…`kw-22`), mapa CKE wskazuje na nową umiejętność.
+2. **IV.8 Przekształcenia wykresów** — lekcja `funkcje-przeksztalcenia` (umiejętność `funkcje-przeksztalcenia`, zadania `fn-21`…`fn-23`).
+3. **IV.9 Funkcja odwrotna** — lekcja `funkcje-odwrotna` (umiejętności `funkcje-odwrotna`, `funkcje-zlozenie`, zadania `fn-17`…`fn-20`).
+4. **I.9 Dowody własności liczb** i **I.10 Nierówności z wartością bezwzględną** — lekcje `realne-dowody` i `realne-modul-nierownosci` (umiejętności `realne-dowody-liczb`, `realne-nierownosci-modul`, zadania `rr-21`…`rr-26`). Statusy zmienione z `planned` na `lesson_ready`.
+
+**Pogłębienie cienkich lekcji** (każda lekcja ma teraz ≥ 6 bloków i pełny zestaw `formula`/`example`/`warning`/`summary`): `wielomiany`, `wymierne`, `parametry`, `granice`, `pochodne`, `optymalizacja`, `dowody`. Dział `zastosowania` (nowy) także uzupełniony.
+
+**Poprawki jakości treści:** naprawiono podwójne escapowanie LaTeX-a (`\\cdot` zamiast `\cdot`) w `content/topics/zastosowania.ts` i `content/tasks/zastosowania.ts` — wcześniej wzory renderowały się jako łamanie linii zamiast poleceń KaTeX.
+
+**Co zostaje:**
+
+- **17 zadań** ćwiczy umiejętność z innej lekcji tego samego działu (świadoma praktyka mieszana) — lista w `pnpm qa:tasks`; przy redakcji można je przenieść do właściwej lekcji.
+- Migracja `011` i klucz `AI_GATEWAY_API_KEY` — jak wyżej (blokady środowiskowe, nie treściowe).
 
 **Definicja „skończone” dla 3.1–3.4:** `pnpm qa:full` 100% zielony na niezmienionym kodzie + commit historii bezplikowo odzwierciedla stan planu (`PLAN_ROZBUDOWY.md` odhaczone).

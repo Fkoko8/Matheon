@@ -234,7 +234,7 @@ export const ciagiTasks: ContentTask[] = [
     type: 'single_choice',
     level: 'extended',
     difficulty: 3,
-    points: 2,
+    points: 1,
     prompt: 'Granica $\\lim_{n \\to \\infty} \\frac{2n^{2} - n}{n^{2} + 3n}$ jest równa:',
     options: ['2', '0', '1', 'granica nie istnieje'],
     answer: '2',

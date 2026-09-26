@@ -237,5 +237,176 @@ export const realne: ContentTopic = {
         },
       ],
     },
+    {
+      slug: 'realne-dowody',
+      title: 'Dowody własności liczb',
+      durationMinutes: 30,
+      difficulty: 4,
+      requirements: ['I.9'],
+      objectives: [
+        'Dowodzisz nierówności metodą równoważnych przekształceń i uzupełniania do kwadratu',
+        'Rozumiesz schemat dowodu nie wprost i uzasadniasz, kiedy jest potrzebny',
+        'Odróżniasz dowód od sprawdzenia na przykładach i umiesz podać kontrprzykład',
+      ],
+      skills: [
+        { slug: 'realne-dowody-liczb', name: 'Dowody własności liczb', description: 'Dowodzi nierówności i własności liczb metodą przekształceń równoważnych oraz nie wprost.', level: 'extended' },
+      ],
+      blocks: [
+        {
+          type: 'paragraph',
+          title: 'Czym różni się dowód od sprawdzenia',
+          body: 'Sprawdzenie na kilku przykładach nie jest dowodem — to tylko wskazówka. Dowód musi działać dla **każdej** liczby z podanego zakresu. W tym dziale pojawia się też rozumowanie nie wprost: zamiast dowodzić tezy, dowodzimy, że jej zaprzeczenie prowadzi do sprzeczności.',
+        },
+        {
+          type: 'formula',
+          title: 'Fundament: kwadrat jest nieujemny',
+          body: 'Nierówności najczęściej sprowadzasz do sumy kwadratów i liczby dodatniej. To jedno spostrzeżenie rozwiązuje większość zadań.',
+          formula: 'a^{2} \\geq 0 \\quad \\text{dla każdego } a \\in \\mathbb{R}, \\qquad a^{2} + b^{2} = 0 \\iff a = b = 0',
+        },
+        {
+          type: 'table',
+          title: 'Trzy schematy dowodu',
+          body: `| Metoda | Kiedy używać | Kluczowy ruch |
+|---|---|---|
+| równoważne przekształcenia | nierówności algebraiczne | doprowadź do oczywistej nierówności (np. $x^{2} \\geq 0$) |
+| nie wprost | gdy teza jest negacją („nie istnieje”, „jest niewymierna”) | załóż przeciwieństwo i szukaj sprzeczności |
+| kontrprzykład | aby **obalić** twierdzenie | podaj jeden przykład, dla którego teza nie działa |`,
+        },
+        {
+          type: 'example',
+          title: 'Przykład — nierówność przez pełny kwadrat',
+          body: `Wykaż, że dla każdego $x \\in \\mathbb{R}$ zachodzi $x^{2} - 2x + 3 > 0$.
+
+Uzupełnijmy do kwadratu: $x^{2} - 2x + 3 = (x-1)^{2} + 2$. Kwadrat jest nieujemny, więc $(x-1)^{2} + 2 \\geq 2 > 0$. To kończy dowód. (Alternatywnie: $\\Delta = 4 - 12 = -8 < 0$ i $a = 1 > 0$.)`,
+        },
+        {
+          type: 'example',
+          title: 'Przykład — dowód nie wprost',
+          body: `Wykaż, że suma liczby wymiernej $w$ i liczby niewymiernej $n$ jest niewymierna.
+
+Przypuśćmy przeciwnie, że $w + n$ jest wymierna i równa $r$. Wtedy $n = r - w$ jest różnicą dwóch liczb wymiernych, czyli liczbą wymierną — sprzeczność z założeniem, że $n$ jest niewymierna. Zatem suma musi być niewymierna.`,
+        },
+        {
+          type: 'example',
+          title: 'Przykład — kontrprzykład',
+          body: 'Twierdzenie „jeśli $x^{2} > x$, to $x > 1$” jest fałszywe. Dla $x = -1$ mamy $x^{2} = 1 > -1 = x$, ale $x = -1$ nie jest większe od $1$. Jeden kontrprzykład wystarcza, aby obalić twierdzenie.',
+        },
+        {
+          type: 'warning',
+          title: 'Najczęstsze pomyłki',
+          body: `• **Przykład zamiast dowodu:** sprawdzenie $x = 1, 2, 3$ nie dowodzi własności „dla każdego $x$”.
+• **Mnożenie nierówności przez wyrażenie ze zmienną** bez analizy jego znaku — to potrafi odwrócić kierunek nierówności.
+• **Zaprzeczenie tezy:** negacją „$a > b$” jest „$a \\leq b$”, a nie „$a < b$”.
+• Uzupełnianie do kwadratu z błędem: $x^{2} + 6x = (x+3)^{2} - 9$, a nie $+9$.`,
+        },
+        {
+          type: 'tip',
+          title: 'Wskazówka maturalna',
+          body: 'W zadaniu „wykaż, że” zacznij od zdania „Przekształcam równoważnie:”. Za samą formę dowodu (jawne kroki, powołanie na nieujemność kwadratu) dostajesz punkty, nawet jeśli rachunek jest krótki. W dowodzie nie wprost wyraźnie zapisz założenie przeciwieństwa — to ono jest punktowane.',
+        },
+        {
+          type: 'summary',
+          title: 'Co zapamiętać',
+          body: `• $a^{2} \\geq 0$ to najczęstszy argument w dowodach nierówności.
+• Nierówność dowodzisz równoważnymi przekształceniami, kończąc na zdaniu oczywistym.
+• „Nie istnieje” i „jest niewymierna” — dowód nie wprost.
+• Jedna sprzeczność obala twierdzenie; jeden kontrprzykład obala zdanie „dla każdego”.`,
+        },
+      ],
+    },
+    {
+      slug: 'realne-modul-nierownosci',
+      title: 'Nierówności z wartością bezwzględną',
+      durationMinutes: 28,
+      difficulty: 4,
+      requirements: ['I.10'],
+      objectives: [
+        'Rozwiązujesz nierówności typu $|x - a| < b$ i $|x - a| > b$',
+        'Interpretujesz rozwiązanie jako odległość na osi liczbowej',
+        'Rozbijasz nierówność z modułem na przypadki, gdy po prawej stronie jest zmienna',
+      ],
+      skills: [
+        { slug: 'realne-nierownosci-modul', name: 'Nierówności z modułem', description: 'Rozwiązuje nierówności z wartością bezwzględną i zapisuje zbiór rozwiązań przedziałami.', level: 'extended' },
+      ],
+      blocks: [
+        {
+          type: 'paragraph',
+          title: 'Moduł to odległość',
+          body: '$|x - a|$ to odległość liczby $x$ od punktu $a$ na osi liczbowej. Dlatego nierówność z modułem najłatwiej zrozumieć geometrycznie: $|x - a| < b$ oznacza „$x$ jest bliżej niż $b$ od $a$”, czyli cały przedział wokół $a$.',
+        },
+        {
+          type: 'formula',
+          title: 'Dwie podstawowe równoważności',
+          body: 'Dla $b > 0$ poniższe reguły zamieniają nierówność z modułem na zwykłą nierówność lub ich układ.',
+          formula: '|x - a| < b \\iff -b < x - a < b \\iff x \\in (a-b, a+b)\n\n|x - a| > b \\iff x - a < -b \\ \\text{lub} \\ x - a > b \\iff x < a-b \\ \\text{lub} \\ x > a+b',
+        },
+        {
+          type: 'diagram',
+          title: 'Interpretacja na osi',
+          body: 'Rozwiążmy $|x - 2| \\leq 3$: liczby, których odległość od $2$ nie przekracza $3$. To przedział od $2-3 = -1$ do $2+3 = 5$.',
+          figure: {
+            caption: 'Warunek $|x - 2| \\leq 3$ oznacza punkty osi leżące najdalej o $3$ od liczby $2$: zbiór rozwiązań to przedział $[-1, 5]$.',
+            kind: 'numberline',
+            min: -4,
+            max: 8,
+            step: 1,
+            points: [
+              { value: 2, label: 'środek: 2', color: 'amber' },
+              { value: -1, label: '−1', color: 'emerald' },
+              { value: 5, label: '5', color: 'emerald' },
+            ],
+            intervals: [{ from: -1, to: 5, color: 'violet', label: '[-1, 5]' }],
+          },
+        },
+        {
+          type: 'example',
+          title: 'Przykład — nierówność „mniejsza”',
+          body: `Rozwiąż $|2x - 6| < 4$.
+
+$|2x - 6| < 4 \\iff -4 < 2x - 6 < 4$. Dodajemy $6$: $2 < 2x < 10$. Dzielimy przez $2$: $1 < x < 5$, czyli $x \\in (1, 5)$.
+
+Geometrycznie: $|2x-6| = 2|x-3|$, więc pytamy o punkty bliżej niż $2$ od $3$ — istotnie $(1, 5)$.`,
+        },
+        {
+          type: 'example',
+          title: 'Przykład — nierówność „większa”',
+          body: `Rozwiąż $|x + 1| \\geq 2$.
+
+$|x + 1| \\geq 2 \\iff x + 1 \\leq -2 \\ \\text{lub} \\ x + 1 \\geq 2$, więc $x \\leq -3$ lub $x \\geq 1$. Zbiór rozwiązań: $(-\\infty, -3] \\cup [1, +\\infty)$. To liczby odległe od $-1$ o co najmniej $2$.`,
+        },
+        {
+          type: 'table',
+          title: 'Kiedy używasz którego schematu',
+          body: `| Nierówność | Schemat | Zbiór rozwiązań |
+|---|---|---|
+| $|x - a| < b$, $b > 0$ | podwójna nierówność | przedział $(a-b, a+b)$ |
+| $|x - a| \\leq b$, $b > 0$ | podwójna, domknięta | przedział $[a-b, a+b]$ |
+| $|x - a| > b$, $b > 0$ | alternatywa („lub”) | suma dwóch półprostych |
+| $|x - a| < b$, $b < 0$ | brak rozwiązań | zbiór pusty |
+| $|x - a| > b$, $b < 0$ | zawsze prawdziwa | $\\mathbb{R}$ |`,
+        },
+        {
+          type: 'warning',
+          title: 'Najczęstsze pomyłki',
+          body: `• **Nierówność ujemna:** $|x - a| < -3$ nie ma rozwiązań — moduł nigdy nie jest ujemny. Odwrotnie $|x - a| > -3$ jest prawdziwe dla każdego $x$.
+• **Kierunek:** przy $<$ rozwiązanie leży **między** punktami (część wspólna), a przy $>$ — **na zewnątrz** (suma).
+• **Dzielenie przez liczbę ujemną** w podwójnej nierówności — odwraca oba znaki.
+• Po prawej stronie ze zmienną (np. $|x| < x$) nie wolno stosować wzoru z $b$ — trzeba rozbić na przypadki $x \\geq 0$ i $x < 0$.`,
+        },
+        {
+          type: 'tip',
+          title: 'Wskazówka maturalna',
+          body: 'Prawie każde zadanie z modułem da się rozwiązać geometrycznie, wyznaczając środek $a$ i promień $b$. Zapisuj odpowiedź przedziałami, a w nierówności nieostrej ($\\leq$, $\\geq$) pamiętaj o domkniętych nawiasach — to najczęściej tracony punkt.',
+        },
+        {
+          type: 'summary',
+          title: 'Co zapamiętać',
+          body: `• $|x - a| < b \\iff x \\in (a-b, a+b)$ (dla $b > 0$).
+• $|x - a| > b \\iff x < a-b$ lub $x > a+b$.
+• Moduł to odległość od $a$ — pomaga sprawdzić wynik.
+• Gdy po prawej stronie stoi zmienna, rozbijaj nierówność na przypadki.`,
+        },
+      ],
+    },
   ],
 }
