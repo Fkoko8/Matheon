@@ -143,7 +143,7 @@ export const stereometriaTasks: ContentTask[] = [
   {
     id: 'sr-09',
     topicSlug: 'stereometria',
-    lessonSlug: 'stereometria-katy-odleglosci',
+    lessonSlug: 'stereometria-objetosci',
     type: 'open',
     level: 'extended',
     difficulty: 4,
@@ -152,7 +152,7 @@ export const stereometriaTasks: ContentTask[] = [
     answer: '96√3',
     acceptedAnswers: ['96√3', '96\\sqrt{3}', '≈166,28', '166.28'],
     tags: ['objetosc', 'ostroslup', 'pole-podstawy'],
-    skills: ['stereometria-objetosci', 'stereometria-katy'],
+    skills: ['stereometria-objetosci'],
     hints: ['Najpierw oblicz pole podstawy — trójkąta równobocznego o boku $12$.', 'Wysokość ostrosłupa to $8$ cm; objętość to $\\frac{1}{3} P_{p} h$.'],
     solution: 'Wysokość trójkąta równobocznego: $\\frac{12\\sqrt{3}}{2} = 6\\sqrt{3}$. Pole podstawy: $P_{p} = \\frac{1}{2} \\cdot 12 \\cdot 6\\sqrt{3} = 36\\sqrt{3}$. Objętość: $V = \\frac{1}{3} \\cdot 36\\sqrt{3} \\cdot 8 = 96\\sqrt{3}$ cm³.',
     steps: ['Oblicz wysokość podstawy: $6\\sqrt{3}$.', 'Oblicz pole podstawy: $P_{p} = 36\\sqrt{3}$.', 'Zastosuj $V = \\frac{1}{3} P_{p} h$.', 'Wynik: $96\\sqrt{3}$ cm³.'],
@@ -165,7 +165,7 @@ export const stereometriaTasks: ContentTask[] = [
   {
     id: 'sr-10',
     topicSlug: 'stereometria',
-    lessonSlug: 'stereometria-katy-odleglosci',
+    lessonSlug: 'stereometria-objetosci',
     type: 'open',
     level: 'extended',
     difficulty: 5,

@@ -212,7 +212,7 @@ export const prawdopodobienstwoTasks: ContentTask[] = [
     answer: '0,76',
     acceptedAnswers: ['0,76', '0.76', '76%', '19/25'],
     tags: ['prawdopodobienstwo-calkowite', 'dopełnienie-zdarzenia'],
-    skills: ['prawdopodobienstwo-warunkowe', 'prawdopodobienstwo-klasyczne'],
+    skills: ['prawdopodobienstwo-warunkowe'],
     hints: ['Łatwiej obliczyć zdarzenie przeciwne: tenisista przegra oba serwisy.', 'Skorzystaj z niezależności serwisów.'],
     solution: 'Oba serwisy przegrane: $(1 - 0{,}6) \\cdot (1 - 0{,}4) = 0{,}4 \\cdot 0{,}6 = 0{,}24$. Zatem prawdopodobieństwo wygrania przynajmniej jednego serwisu to $1 - 0{,}24 = 0{,}76$.',
     steps: ['Rozważ zdarzenie przeciwne: przegranie obu serwisów.', 'Oblicz: $0{,}4 \\cdot 0{,}6 = 0{,}24$.', 'Odejmij od $1$: $1 - 0{,}24 = 0{,}76$.'],

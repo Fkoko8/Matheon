@@ -208,7 +208,7 @@ export const kwadratowaTasks: ContentTask[] = [
     answer: '(x-2)^{2}+1 > 0',
     acceptedAnswers: ['(x-2)^2+1>0', '(x - 2)^2 + 1 > 0'],
     tags: ['dowod', 'kanoniczna'],
-    skills: ['kwadratowa-nierownosci', 'kwadratowa-postacie'],
+    skills: ['kwadratowa-nierownosci'],
     hints: ['Doprowadź wyrażenie do postaci kanonicznej.', 'Wykorzystaj, że kwadrat liczby rzeczywistej jest nieujemny.'],
     solution: 'Postać kanoniczna: $x^{2} - 4x + 5 = (x^{2} - 4x + 4) + 1 = (x-2)^{2} + 1$. Dla każdej liczby rzeczywistej $x$ mamy $(x-2)^{2} \\geq 0$, więc $(x-2)^{2} + 1 \\geq 1 > 0$. Zatem nierówność zachodzi dla każdego $x \\in \\mathbb{R}$.',
     steps: ['Grupuj: $x^2 - 4x + 4 + 1$.', 'Zapisz $(x-2)^2 + 1$.', 'Użyj $(x-2)^2 \\geq 0$, więc wyrażenie $\\geq 1 > 0$.'],
@@ -317,7 +317,7 @@ Wtedy $y = 8 - \\frac{4}{3} \\cdot 3 = 4$.
   {
     id: 'kw-18',
     topicSlug: 'kwadratowa',
-    lessonSlug: 'kwadratowa-zastosowania',
+    lessonSlug: 'kwadratowa-postacie',
     type: 'proof',
     difficulty: 5,
     points: 4,

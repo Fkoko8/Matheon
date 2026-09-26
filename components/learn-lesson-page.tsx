@@ -25,6 +25,8 @@ export function LessonCurriculumPage({ topicSlug, lessonSlug }: { topicSlug: str
   const topicProgress = progress?.get(topicSlug)
   const lessonProgress = topicProgress?.lessons.find((item) => item.lessonSlug === lessonSlug)
 
+  // Obiekt lekcji pochodzi ze stałego katalogu programu (moduł, nie stan) — referencja jest stabilna.
+  // eslint-disable-next-line react-hooks/preserve-manual-memoization -- fałszywy alarm kompilatora na mutację, której nie ma
   const outline = useMemo(() => (lesson ? blockOutline(lesson.blocks) : []), [lesson])
   const [activeId, setActiveId] = useState<string | null>(null)
   const [readPercent, setReadPercent] = useState(0)

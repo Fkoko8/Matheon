@@ -100,6 +100,7 @@ function LoginForm() {
             <label className="text-xs text-slate-400">Hasło
               <input type="password" required minLength={6} value={password} onChange={(e) => setPassword(e.target.value)} autoComplete={mode === 'signin' ? 'current-password' : 'new-password'} placeholder="Minimum 6 znaków" className="mt-2 w-full rounded-xl border border-white/[0.1] bg-black/25 px-4 py-3 text-sm text-white outline-none focus:border-violet-400/60" />
             </label>
+            {mode === 'signin' && <Link href="/reset-password" className="-mt-2 text-right text-xs text-slate-500 hover:text-violet-200">Nie pamiętasz hasła?</Link>}
             {error && <p className="rounded-xl border border-rose-400/20 bg-rose-400/10 p-3 text-xs text-rose-200">{error}</p>}
             {notice && <p className="flex items-start gap-2 rounded-xl border border-emerald-400/20 bg-emerald-400/10 p-3 text-xs text-emerald-100"><Check size={14} className="mt-0.5 shrink-0" />{notice}</p>}
             <button type="submit" disabled={busy || !configured} className="flex items-center justify-center gap-2 rounded-xl bg-violet-500 px-4 py-3 text-sm font-medium text-white transition hover:bg-violet-400 disabled:cursor-not-allowed disabled:opacity-50">
@@ -115,7 +116,7 @@ function LoginForm() {
           </button>
 
           <p className="mt-6 text-center text-xs text-slate-500">
-            <Link href="/" className="text-violet-300 hover:text-violet-200">Wróć do aplikacji</Link>
+            Nie pamiętasz hasła? <Link href="/reset-password" className="text-violet-300 hover:text-violet-200">Zresetuj je</Link>
           </p>
         </section>
       </div>

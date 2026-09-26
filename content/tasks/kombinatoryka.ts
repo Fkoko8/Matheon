@@ -172,7 +172,7 @@ export const kombinatorykaTasks: ContentTask[] = [
     answer: '211',
     acceptedAnswers: ['211'],
     tags: ['wylaczenia', 'ciagi', 'ograniczenia'],
-    skills: ['kombinatoryka-ograniczenia', 'kombinatoryka-mnozenie'],
+    skills: ['kombinatoryka-ograniczenia'],
     hints: ['Policz wszystkie ciągi długości 5 z trzech liter.', 'Od nich odejmij ciągi złożone wyłącznie z liter B i C.'],
     solution: 'Wszystkich ciągów długości $5$ z liter A, B, C: $3^{5} = 243$ (reguła mnożenia, $3$ wybory na każdym miejscu). Ciągów bez litery A, czyli złożonych tylko z B i C: $2^{5} = 32$. Szukane ciągi: $243 - 32 = 211$.',
     steps: ['Policz wszystkie ciągi: $3^{5} = 243$.', 'Policz ciągi bez A: $2^{5} = 32$.', 'Odejmij: $243 - 32 = 211$.'],

@@ -74,7 +74,7 @@ export function PracticeSession(props: PracticeSessionProps) {
   const [results, setResults] = useState<Array<{ isCorrect: boolean; points: number; earned: number }>>([])
   const [gains, setGains] = useState<Map<string, { name: string; after: number }>>(new Map())
   const [mistakesFixed, setMistakesFixed] = useState(0)
-  const startedAt = useRef<number>(Date.now())
+  const startedAt = useRef<number>(0)
 
   useEffect(() => {
     let active = true

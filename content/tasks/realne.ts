@@ -144,7 +144,7 @@ export const realneTasks: ContentTask[] = [
     answer: '207',
     acceptedAnswers: ['207', '207,0', '207 zł'],
     tags: ['procenty', 'kontekst'],
-    skills: ['realne-procenty', 'realne-liczby-wymierne'],
+    skills: ['realne-procenty'],
     hints: ['Podwyżka o 15% to mnożenie przez $1{,}15$.', 'Obniżka o 10% to mnożenie przez $0{,}9$.'],
     solution: '$200\\cdot 1{,}15 = 230$, następnie $230\\cdot 0{,}9 = 207$. Cena końcowa to 207 zł.',
     steps: ['Pomnóż cenę przez $1{,}15$.', 'Pomnóż wynik przez $0{,}9$.'],

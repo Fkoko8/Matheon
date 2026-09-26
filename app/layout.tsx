@@ -4,11 +4,27 @@ import { PwaRegister } from '@/components/pwa-register'
 import './globals.css'
 import 'katex/dist/katex.min.css'
 
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000'
+
 export const metadata: Metadata = {
+  metadataBase: new URL(siteUrl),
   title: 'MATHEON — Twój system nauki matematyki',
   description: 'Nowoczesna platforma do przygotowania do matury podstawowej i rozszerzonej.',
   generator: 'v0.app',
   applicationName: 'MATHEON',
+  openGraph: {
+    type: 'website',
+    siteName: 'MATHEON',
+    locale: 'pl_PL',
+    url: siteUrl,
+    title: 'MATHEON — Twój system nauki do matury z matematyki',
+    description: 'Teoria, zadania, powtórki SM-2, arkusze i AI Tutor — wszystko dopasowane do wymagań CKE (Formuła 2023).',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'MATHEON — Twój system nauki do matury z matematyki',
+    description: 'Teoria, zadania, powtórki SM-2, arkusze i AI Tutor — dopasowane do wymagań CKE.',
+  },
   // Instalacja jako aplikacja: `app/manifest.ts` + ikony generowane `pnpm icons:generate`.
   appleWebApp: { capable: true, title: 'MATHEON', statusBarStyle: 'black-translucent' },
   formatDetection: { telephone: false, address: false, email: false },

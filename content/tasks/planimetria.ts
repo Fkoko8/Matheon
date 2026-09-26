@@ -205,7 +205,7 @@ export const planimetriaTasks: ContentTask[] = [
     answer: '3',
     acceptedAnswers: ['3', '3 cm'],
     tags: ['okreg-wpisany', 'pole-trojkata'],
-    skills: ['planimetria-okregi', 'planimetria-pola'],
+    skills: ['planimetria-okregi'],
     hints: ['Trójkąt jest równoramienny — wysokość dzieli podstawę na dwie części po $6$.', 'Najpierw policz pole i półobwód, potem zastosuj $r = \\frac{P}{s}$.'],
     solution: 'Wysokość poprowadzona do podstawy $12$ dzieli ją na $6$ i $6$, więc $h = \\sqrt{10^{2} - 6^{2}} = \\sqrt{64} = 8$. Pole: $P = \\frac{1}{2} \\cdot 12 \\cdot 8 = 48$. Półobwód: $s = \\frac{10 + 10 + 12}{2} = 16$. Promień okręgu wpisanego: $r = \\frac{P}{s} = \\frac{48}{16} = 3$ cm.',
     steps: ['Wyznacz wysokość w trójkącie równoramiennym: $h = \\sqrt{10^{2} - 6^{2}} = 8$.', 'Oblicz pole $P = \\frac{1}{2} \\cdot 12 \\cdot 8 = 48$.', 'Oblicz półobwód $s = 16$.', 'Zastosuj $r = \\frac{P}{s}$ i podaj $3$ cm.'],

@@ -18,8 +18,7 @@ export function AdaptivePlanPage() {
   const load = async () => setSnapshot(await getPlanSnapshot())
   useEffect(() => { void load() }, [])
   const today = dateText(new Date())
-  const items = snapshot?.items ?? []
-  const visibleItems = useMemo(() => { if (view === 'Dzisiaj') return items.filter((item) => item.scheduledDate === today); if (view === 'Miesiąc') return items; const end = new Date(); end.setDate(end.getDate() + 7); return items.filter((item) => item.scheduledDate <= dateText(end)) }, [items, today, view])
+  const visibleItems = useMemo(() => { const items = snapshot?.items ?? []; if (view === 'Dzisiaj') return items.filter((item) => item.scheduledDate === today); if (view === 'Miesiąc') return items; const end = new Date(); end.setDate(end.getDate() + 7); return items.filter((item) => item.scheduledDate <= dateText(end)) }, [snapshot, today, view])
   const grouped = visibleItems.reduce<Record<string, typeof visibleItems>>((acc, item) => { (acc[item.scheduledDate] ??= []).push(item); return acc }, {})
   const create = async () => { setBusy(true); await createAdaptivePlan({ ...config, examDate: config.examDate || null }); await load(); setBusy(false); setWizard(false) }
   const complete = async (id: string) => { await updatePlanItem(id, 'complete'); await load() }

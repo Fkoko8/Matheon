@@ -190,7 +190,28 @@ trudność 1–5, punkty 1–6, poziom zgodny z wymaganiami działu) oraz pokryc
 
 **Co zostaje:**
 
-- **17 zadań** ćwiczy umiejętność z innej lekcji tego samego działu (świadoma praktyka mieszana) — lista w `pnpm qa:tasks`; przy redakcji można je przenieść do właściwej lekcji.
+- ~~17 zadań ćwiczy umiejętność z innej lekcji~~ — **rozwiązane 2026-09-26**: 4 zadania prze-ankorowane do właściwej lekcji (`kw-18`→`kwadratowa-postacie`, `sr-09`/`sr-10`→`stereometria-objetosci`, `wm-07`→`wielomiany-rozklad`), 13 oczyszczone z umiejętności nienależących do lekcji (rzetelna praktyka = mastery liczony z właściwej lekcji). `pnpm qa:tasks`: 0 błędów, 0 ostrzeżeń.
 - Migracja `011` i klucz `AI_GATEWAY_API_KEY` — jak wyżej (blokady środowiskowe, nie treściowe).
+
+### Ulepszenia produktowe i jakość kodu (2026-09-26)
+
+**Druga tura analizy aplikacji — zaimplementowane:**
+
+1. **Reset i zmiana hasła** — `lib/auth.ts` (`requestPasswordReset`, `updatePassword`), strony `app/(auth)/reset-password` i `app/(auth)/update-password`, link „Nie pamiętasz hasła?” na `/login`; usunięty martwy link „Wróć do aplikacji”; `proxy.ts` traktuje obie trasy jak auth (zalogowany → redirect do `/`).
+2. **Profil na realnych danych** — `ProfilePage` przepisany: mastery z `loadPracticeOverview`, liczba odpowiedzi i skuteczność z dziennika zdarzeń, czas nauki z sesji, ostatnia aktywność z `learning_events` (podpisy pytań/lekcji z bazy), osiągnięcia z `user_achievements`. Zero mocków (wcześniej: „78% mastery”, „1 240 zadań”, angielskie osiągnięcia).
+3. **Osiągnięcia** — nowy silnik `lib/learning/achievements.ts` (reguły z tabeli `achievements`: `answers`/`correct_streak`/`mastery`/`lessons`/`streak`, idempotentny upsert, zwraca nowo zdobyte + XP) + testy; **migracja 012** (`012_user_achievements_insert.sql`) — polityka RLS INSERT, bez niej uczeń nigdy nie zdobył odznaki. Wgrać ręcznie przez SQL Editor.
+4. **Ustawienia uczciwe** — zapis nazwy i zakresu do `profiles` (RLS allows), zmiana hasła, wylogowanie; usunięte fałszywe „Saved”, przyciski bez akcji i sekcje-przykrywki.
+5. **Niezawodność** — `app/(app)/error.tsx` (granica błędu z „Spróbuj ponownie” i kodem digest) + `app/(app)/loading.tsx` (szkielet).
+6. **SEO** — `app/robots.ts` (publiczne: `/`, `/login`, `/reset-password`; uczeńskie trasy disallow), `app/sitemap.ts`, pełne `openGraph`/`twitter` + `metadataBase` (URL przez `NEXT_PUBLIC_SITE_URL`).
+7. **Lint + format** — ESLint 9 (flat config: `eslint-config-next/core-web-vitals` + Prettier), Prettier 3; skrypty `pnpm lint` / `pnpm format`. Baseline: wyłączona reguła `react-hooks/set-state-in-effect` (wzorzec „dane w effect” jest w całej aplikacji — naprawa to przepisanie na server components, Faza 6); naprawione realne problemy: `<a>`→`Link`, `Date.now()` w renderze (`useRef(Date.now())`), niepoprawne memoizacje.
+8. **Treść** — jak wyżej: 17 rozbieżności zadanie↔lekcja domknięte, `pnpm qa:tasks` bez ostrzeżeń.
+
+**Co dalej (kolejna kolejność wg wartości):**
+
+- Landing marketingowy dla niezalogowanych (Faza 6.5) — `/` to teraz od razu redirect do logowania.
+- Telemetria produktowa (eventy: start lekcji, ukończenie egzaminu) i mierzenie retencji.
+- Rozbudowa banku zadań do ≥600 (obecnie 293).
+- E2E Playwright (rejestracja → onboarding → lekcja → trening → egzamin).
+- Przegląd RLS wszystkich tabel + `security invoker` vs `definer` (Faza 6.1).
 
 **Definicja „skończone” dla 3.1–3.4:** `pnpm qa:full` 100% zielony na niezmienionym kodzie + commit historii bezplikowo odzwierciedla stan planu (`PLAN_ROZBUDOWY.md` odhaczone).

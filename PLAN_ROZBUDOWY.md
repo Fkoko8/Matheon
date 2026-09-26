@@ -231,11 +231,12 @@ Priorytet: bez tego dalsza rozbudowa pogarsza stan.
 
 ### Faza 6 — Polerowanie do „final” (1–2 tyg.)
 
+0. **Zrobione 2026-09-26 (druga tura analizy):** granica błędu i szkielet ładowania (`app/(app)/error.tsx`, `loading.tsx`), meta/OG/sitemap/robots (trasy uczniowskie poza indeksowaniem), reset i zmiana hasła (`/reset-password`, `/update-password`), profil ucznia na realnych danych + silnik osiągnięć (`lib/learning/achievements.ts`, migracja 012 RLS INSERT), uczciwe ustawienia (zapis do `profiles`), ESLint 9 + Prettier (`pnpm lint`/`format`). **Zostaje:** landing dla niezalogowanych (item 5 niżej), telemetria (3), audyt RLS (1), E2E (6).
 1. **Bezpieczeństwo:** audyt RLS (każda tabela, wszystkie operacje; funkcje `security invoker` vs `definer`), rate limit na edge, weryfikacja, że generated questions nie omijają polityk.
 2. **Wydajność:** server components dla treści lekcji, paginacja banku zadań, indeksy (są, ale po migracjach do przejrzenia), obrazy w `next/image`.
 3. **Telemetria:** Vercel Analytics + eventy produktowe (rozpoczęcie lekcji, ukończenie egzaminu) w `learning_events` + dashboard metryk (retencja D7, mediana sesji).
 4. **Q&A i treść:** korekta merytoryczna treści przez nauczyciela, `validation_status='reviewed'` przed publikacją.
-5. **SEO/landing:** strona główna marketingowa dla niezalogowanych (obecnie `/` od razu dashboard), strona `/login` bez sidebaru, meta/OG, sitemap.
+5. **SEO/landing:** strona główna marketingowa dla niezalogowanych (obecnie `/` od razu wymusza logowanie), strona `/login` bez sidebaru; **meta/OG, sitemap i robots — zrobione 2026-09-26**.
 6. **Testy E2E** (Playwright): rejestracja → onboarding → lekcja → trening → egzamin → plan.
 
 **Deliverable:** wersja do publicznego udostępnienia grupie testowej (beta school), potem GA.

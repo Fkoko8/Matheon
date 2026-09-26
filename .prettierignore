@@ -1,0 +1,9 @@
+node_modules
+.next
+out
+pnpm-lock.yaml
+tsconfig.tsbuildinfo
+public/sw.js
+public/icons
+supabase/seed.sql
+*.md
