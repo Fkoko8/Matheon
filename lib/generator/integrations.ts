@@ -1,0 +1,4 @@
+import type { GenerationRequest } from './schema'
+export function similarQuestionRequest(input: Omit<GenerationRequest, 'mode'> & { parentQuestionId: string; original: string }): GenerationRequest { return { ...input, mode: 'similar', context: `Oryginalne zadanie: ${input.original}. Zmień liczby i strukturę, zachowaj sprawdzaną umiejętność.` } }
+export function mistakePracticeRequest(input: Omit<GenerationRequest, 'mode'> & { mistake: string }): GenerationRequest { return { ...input, mode: 'personalized', context: `Błąd ucznia: ${input.mistake}. Zaprojektuj zadanie naprawiające tę konkretną lukę.` } }
+export function planPracticeRequest(input: Omit<GenerationRequest, 'mode'> & { planTitle: string }): GenerationRequest { return { ...input, mode: 'plan', context: `Sesja z planu nauki: ${input.planTitle}. Skup się na celu sesji i nie wykraczaj poza temat.` } }

@@ -1,0 +1,12 @@
+alter table public.questions add column if not exists title text;
+alter table public.questions add column if not exists skills text[] not null default '{}';
+alter table public.questions add column if not exists tags text[] not null default '{}';
+alter table public.questions add column if not exists source_type text not null default 'authored';
+alter table public.questions add column if not exists generated_by text;
+alter table public.questions add column if not exists parent_question_id uuid references public.questions(id) on delete set null;
+alter table public.questions add column if not exists validation_status text not null default 'published' check (validation_status in ('generated','validating','validated','rejected','stored','published','failed'));
+alter table public.questions add column if not exists validation_metadata jsonb not null default '{}'::jsonb;
+alter table public.questions add column if not exists generation_model text;
+alter table public.questions add column if not exists generation_timestamp timestamptz;
+create index if not exists questions_generated_lookup on public.questions(source_type, topic_id, difficulty, created_at desc);
+create unique index if not exists questions_normalized_unique on public.questions(topic_id, difficulty, md5(lower(regexp_replace(question_text, '\\s+', ' ', 'g')))) where source_type = 'generated';

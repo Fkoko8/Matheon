@@ -1,0 +1,10 @@
+import { generateObject, gateway } from 'ai'
+import { generatedQuestionJsonSchema, generatedQuestionSchema, normalizeQuestion, type GeneratedQuestion, type GenerationRequest } from './schema'
+import { generatorSystemPrompt } from './prompt'
+import { validateQuestion } from './math-validator'
+export type QuestionGeneratorProvider = { generate(request: GenerationRequest): Promise<unknown> }
+const aiProvider: QuestionGeneratorProvider = { async generate(request) { const result = await generateObject({ model: gateway('openai/gpt-4.1-mini'), schema: generatedQuestionSchema, system: generatorSystemPrompt(request), prompt: 'Wygeneruj jedno zadanie.', temperature: 0.3 }); return result.object } }
+export async function generateQuestion(request: GenerationRequest, provider: QuestionGeneratorProvider = aiProvider): Promise<GeneratedQuestion> { let lastError = 'validation_failed'; for (let attempt = 1; attempt <= 3; attempt += 1) { try { const parsed = generatedQuestionSchema.parse(provider === aiProvider ? await provider.generate(request) : await provider.generate(request)); const normalized = normalizeQuestion(parsed, request); const validation = await validateQuestion(normalized); if (validation.valid) return normalized; lastError = validation.warnings.join(' ') || lastError } catch (error) { lastError = error instanceof Error ? error.message : lastError } } throw new Error(`NO_VALID_QUESTION:${lastError}`) }
+export async function generatePracticeSet(request: GenerationRequest) { return Promise.all(Array.from({ length: request.count }, () => generateQuestion({ ...request, count: 1 }))) }
+export async function generateSimilarQuestion(request: GenerationRequest, original: string) { return generateQuestion({ ...request, mode: 'similar', context: `Zachowaj tę samą umiejętność, ale zmień liczby i strukturę. Oryginał: ${original}` }) }
+export async function generatePersonalizedQuestion(request: GenerationRequest, context: string) { return generateQuestion({ ...request, mode: 'personalized', context: `Dopasuj do mastery, błędów i historii ucznia: ${context}` }) }
